@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>永动机的归途是听凭风引 · 首页</title>
+    <style>
+        /* ========== 全局重置 ========== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-touch-callout: none;
+        }
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #0d0b08;
+            font-family: 'Segoe UI', 'PingFang SC', Roboto, sans-serif;
+        }
+
+        /* ========== 首页样式 ========== */
+        #homeScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 9999;
+            background: radial-gradient(ellipse at 50% 40%, #2a1e1a, #0d0b08);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        /* 首页枫叶背景 */
+        #homeLeaves {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 0;
+        }
+        .home-leaf {
+            position: absolute;
+            font-size: 28px;
+            opacity: 0.2;
+            animation: leafFall linear infinite;
+            will-change: transform;
+            pointer-events: none;
+        }
+        @keyframes leafFall {
+            0% {
+                transform: translateY(-10vh) rotate(0deg) scale(0.8);
+                opacity: 0.15;
+            }
+            10% {
+                opacity: 0.3;
+            }
+            90% {
+                opacity: 0.25;
+            }
+            100% {
+                transform: translateY(110vh) rotate(720deg) scale(1.2);
+                opacity: 0.05;
+            }
+        }
+
+        /* 首页内容 */
+        #homeContent {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            padding: 20px;
+            max-width: 700px;
+            width: 92%;
+        }
+        #homeContent .title {
+            font-size: clamp(2.2rem, 7vw, 4.2rem);
+            font-weight: 900;
+            background: linear-gradient(135deg, #f9ca24, #f1c40f, #e67e22, #f9ca24);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 60px rgba(241, 196, 15, 0.2);
+            letter-spacing: 0.04em;
+            line-height: 1.2;
+            animation: goldShine 4s ease-in-out infinite;
+        }
+        @keyframes goldShine {
+            0%,
+            100% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+        }
+        #homeContent .subtitle {
+            font-size: clamp(0.9rem, 2vw, 1.4rem);
+            color: rgba(255, 255, 255, 0.5);
+            letter-spacing: 0.5em;
+            margin-top: 6px;
+            font-weight: 300;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.08);
+            padding-bottom: 14px;
+            margin-bottom: 18px;
+        }
+        #homeContent .tagline {
+            font-size: clamp(0.75rem, 1.2vw, 1rem);
+            color: rgba(255, 215, 0, 0.35);
+            letter-spacing: 0.3em;
+            margin-top: -8px;
+            margin-bottom: 22px;
+            font-style: italic;
+        }
+
+        /* 首页按钮组 */
+        .home-btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+            max-width: 360px;
+            margin: 0 auto;
+        }
+        .home-btn-group .home-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.10);
+            color: #e8f0fe;
+            padding: 12px 20px;
+            border-radius: 40px;
+            font-size: clamp(0.95rem, 1.4vw, 1.15rem);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            font-family: inherit;
+            letter-spacing: 0.04em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        .home-btn-group .home-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.06), transparent);
+            transition: left 0.6s ease;
+        }
+        .home-btn-group .home-btn:hover::before {
+            left: 100%;
+        }
+        .home-btn-group .home-btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 215, 0, 0.35);
+            transform: translateY(-2px) scale(1.01);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 30px rgba(255, 215, 0, 0.05);
+        }
+        .home-btn-group .home-btn:active {
+            transform: scale(0.97);
+        }
+        .home-btn-group .home-btn .icon {
+            font-size: 1.2em;
+            line-height: 1;
+        }
+        .home-btn-group .home-btn.primary {
+            background: rgba(255, 215, 0, 0.15);
+            border-color: rgba(255, 215, 0, 0.25);
+            box-shadow: 0 4px 24px rgba(255, 215, 0, 0.08);
+        }
+        .home-btn-group .home-btn.primary:hover {
+            background: rgba(255, 215, 0, 0.25);
+            border-color: rgba(255, 215, 0, 0.5);
+            box-shadow: 0 8px 40px rgba(255, 215, 0, 0.15);
+        }
+
+        #homeContent .version {
+            margin-top: 28px;
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.15);
+            letter-spacing: 0.2em;
+            font-weight: 300;
+        }
+
+        /* ========== 通用模态框 ========== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            animation: modalFade 0.3s ease;
+        }
+        .modal-overlay.show {
+            display: flex;
+        }
+        @keyframes modalFade {
+            from {
+                opacity: 0;
+                transform: scale(0.96);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .modal-box {
+            background: #1a2a40;
+            border-radius: 24px;
+            padding: 24px 28px;
+            max-width: 560px;
+            width: 94%;
+            max-height: 85vh;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 215, 0, 0.15);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8);
+            color: #e8f0fe;
+            position: relative;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 215, 0, 0.2) transparent;
+        }
+        .modal-box::-webkit-scrollbar {
+            width: 4px;
+        }
+        .modal-box::-webkit-scrollbar-thumb {
+            background: rgba(255, 215, 0, 0.2);
+            border-radius: 4px;
+        }
+
+        .modal-box h2 {
+            text-align: center;
+            color: #f1c40f;
+            margin-bottom: 14px;
+            font-size: clamp(1.2rem, 3vw, 1.8rem);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+        }
+        .modal-box h2 .close-btn {
+            background: none;
+            border: none;
+            color: #ff6b6b;
+            font-size: 28px;
+            cursor: pointer;
+            transition: 0.2s;
+            line-height: 1;
+            padding: 0 6px;
+        }
+        .modal-box h2 .close-btn:hover {
+            transform: scale(1.2) rotate(90deg);
+            color: #ff4444;
+        }
+        .modal-box .diamond-balance {
+            text-align: right;
+            color: #00d2d3;
+            font-weight: 600;
+            margin-bottom: 12px;
+            font-size: 0.95rem;
+        }
+
+        /* ========== 角色选择 ========== */
+        .character-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            margin: 12px 0 6px;
+        }
+        .character-card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 2px solid rgba(255, 255, 255, 0.06);
+            border-radius: 16px;
+            padding: 14px 10px 12px;
+            text-align: center;
+            transition: all 0.25s ease;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+        .character-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 215, 0, 0.2);
+            transform: translateY(-3px);
+        }
+        .character-card.active {
+            border-color: #f1c40f;
+            background: rgba(255, 215, 0, 0.08);
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.05);
+        }
+        .character-card .char-img {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.4rem;
+            margin-bottom: 4px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+        .character-card .char-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #e8f0fe;
+        }
+        .character-card .char-status {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.4);
+            margin-top: 2px;
+        }
+        .character-card .char-status.owned {
+            color: #2ed573;
+        }
+        .character-card .char-status.locked {
+            color: #ff6b6b;
+        }
+        .character-card .char-action {
+            margin-top: 6px;
+            background: rgba(255, 215, 0, 0.15);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            color: #fff;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            font-family: inherit;
+            font-size: 0.8rem;
+            width: 100%;
+        }
+        .character-card .char-action:hover:not(:disabled) {
+            background: rgba(255, 215, 0, 0.3);
+            transform: scale(1.02);
+        }
+        .character-card .char-action:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .character-card .char-action.select {
+            background: rgba(46, 213, 115, 0.2);
+            border-color: #2ed573;
+            color: #2ed573;
+        }
+        .character-card .char-action.select:hover {
+            background: rgba(46, 213, 115, 0.3);
+        }
+        .character-card .check-mark {
+            position: absolute;
+            top: 6px;
+            right: 8px;
+            color: #f1c40f;
+            font-size: 1.1rem;
+            display: none;
+        }
+        .character-card.active .check-mark {
+            display: block;
+        }
+
+        /* ========== 波次选择 ========== */
+        .wave-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 10px;
+            margin: 12px 0;
+        }
+        .wave-btn {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: #e8f0fe;
+            padding: 10px 4px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+        .wave-btn:hover:not(:disabled) {
+            background: rgba(255, 215, 0, 0.15);
+            border-color: rgba(255, 215, 0, 0.3);
+            transform: scale(1.05);
+        }
+        .wave-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            transform: none;
+            filter: grayscale(0.5);
+        }
+        .wave-btn .wave-sub {
+            font-size: 0.6rem;
+            opacity: 0.5;
+            display: block;
+            margin-top: 2px;
+            font-weight: 400;
+        }
+
+        /* ========== 游戏规则 ========== */
+        .rules-content {
+            font-size: 0.9rem;
+            line-height: 1.7;
+            color: #d0d8e8;
+        }
+        .rules-content .rule-section {
+            margin-bottom: 14px;
+            padding-left: 4px;
+        }
+        .rules-content .rule-section h4 {
+            color: #f1c40f;
+            font-size: 0.95rem;
+            margin-bottom: 2px;
+            border-left: 3px solid rgba(241, 196, 15, 0.3);
+            padding-left: 10px;
+        }
+        .rules-content .rule-section p {
+            padding-left: 14px;
+            color: #b0b8c8;
+            font-size: 0.85rem;
+        }
+        .rules-content .rule-section .highlight {
+            color: #ffd93d;
+            font-weight: 600;
+        }
+        .rules-content .rule-section .elem {
+            display: inline-block;
+            padding: 0 4px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+        .rules-content .rule-section .elem.fire {
+            color: #e67e22;
+        }
+        .rules-content .rule-section .elem.ice {
+            color: #3498db;
+        }
+        .rules-content .rule-section .elem.thunder {
+            color: #f1c40f;
+        }
+        .rules-content .rule-section .elem.water {
+            color: #1abc9c;
+        }
+        .rules-content .rule-section .elem.wind {
+            color: #9b59b6;
+        }
+        .rules-content .rule-section .elem.phys {
+            color: #95a5a6;
+        }
+        .rules-content .rule-section .shortcut {
+            background: rgba(255, 255, 255, 0.06);
+            padding: 0 8px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.8rem;
+            color: #aab;
+        }
+
+        /* ========== 设置面板 ========== */
+        .settings-group {
+            margin-bottom: 14px;
+        }
+        .settings-group h3 {
+            color: #74b9ff;
+            font-size: 15px;
+            margin-bottom: 4px;
+            border-left: 4px solid #f1c40f;
+            padding-left: 8px;
+        }
+        .settings-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 8px;
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 6px;
+            margin-bottom: 4px;
+            border: 1px solid transparent;
+            font-size: 0.9rem;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .settings-item label {
+            font-weight: 500;
+            color: #ddd;
+        }
+        .settings-item input[type="range"] {
+            flex: 1;
+            min-width: 100px;
+            background: #333;
+            height: 4px;
+            border-radius: 2px;
+            -webkit-appearance: none;
+        }
+        .settings-item input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #f1c40f;
+            cursor: pointer;
+        }
+        .settings-item .value-display {
+            color: #ffd93d;
+            font-weight: bold;
+            min-width: 30px;
+            text-align: center;
+        }
+
+        /* ========== 升级查看（示例） ========== */
+        .upgrade-preview {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .upgrade-preview .upgrade-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 8px;
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 6px;
+            font-size: 0.9rem;
+            border: 1px solid transparent;
+        }
+        .upgrade-preview .upgrade-item:hover {
+            border-color: rgba(255, 215, 0, 0.15);
+        }
+        .upgrade-preview .upgrade-item .label {
+            color: #ddd;
+        }
+        .upgrade-preview .upgrade-item .value {
+            color: #ffd93d;
+            font-weight: 600;
+        }
+
+        /* ========== 响应式 ========== */
+        @media (max-width: 600px) {
+            .modal-box {
+                padding: 16px 14px;
+                width: 96%;
+            }
+            .character-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+            }
+            .character-card .char-img {
+                width: 48px;
+                height: 48px;
+                font-size: 1.8rem;
+            }
+            .wave-grid {
+                grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+                gap: 6px;
+            }
+            .home-btn-group .home-btn {
+                padding: 10px 14px;
+                font-size: 0.9rem;
+                border-radius: 32px;
+            }
+            #homeContent .title {
+                font-size: clamp(1.6rem, 6vw, 2.6rem);
+            }
+        }
+        @media (max-width: 400px) {
+            .character-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 6px;
+            }
+            .character-card {
+                padding: 10px 6px;
+            }
+            .character-card .char-img {
+                width: 40px;
+                height: 40px;
+                font-size: 1.4rem;
+            }
+            .home-btn-group .home-btn {
+                padding: 8px 12px;
+                font-size: 0.8rem;
+                gap: 6px;
+            }
+            .wave-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ====== 首页 ====== -->
+    <div id="homeScreen">
+        <div id="homeLeaves"></div>
+        <div id="homeContent">
+            <div class="title">永动机的归途是听凭风引</div>
+            <div class="subtitle">· 移 动 炮 台 ·</div>
+            <div class="tagline">「 风起之时，便是归途 」</div>
+            <div class="home-btn-group">
+                <button class="home-btn primary" id="homeStartBtn"><span class="icon">🌊</span> 开始游戏</button>
+                <button class="home-btn" id="homeCharacterBtn"><span class="icon">👤</span> 角色更换</button>
+                <button class="home-btn" id="homeUpgradeBtn"><span class="icon">📈</span> 升级查看</button>
+                <button class="home-btn" id="homeRulesBtn"><span class="icon">📖</span> 游戏规则</button>
+                <button class="home-btn" id="homeSettingsBtn"><span class="icon">⚙️</span> 游戏设置</button>
+            </div>
+            <div class="version">v2.3 · 枫叶纷飞 · 风引归途</div>
+        </div>
+    </div>
+
+    <!-- ====== 角色更换模态框 ====== -->
+    <div class="modal-overlay" id="characterModal">
+        <div class="modal-box">
+            <h2>👤 角色更换 <button class="close-btn" id="characterCloseBtn">✕</button></h2>
+            <div class="diamond-balance">💎 当前钻石：<span id="charDiamondDisplay">0</span></div>
+            <div id="characterContent" style="margin-top:4px;"></div>
+            <div style="margin-top:12px; font-size:0.8rem; color:rgba(255,255,255,0.3); text-align:center;">
+                角色无属性加成，仅改变炮塔外观。使用钻石解锁。
+            </div>
+        </div>
+    </div>
+
+    <!-- ====== 波次选择模态框 ====== -->
+    <div class="modal-overlay" id="waveModal">
+        <div class="modal-box">
+            <h2>🌊 选择起始波次 <button class="close-btn" id="waveCloseBtn">✕</button></h2>
+            <div style="margin-bottom: 10px; font-size:0.9rem; color: #aab;">
+                当前最高波次：<span id="currentMaxWaveDisplay" style="color:#ffd93d; font-weight:600;">1</span>
+            </div>
+            <div id="waveContent" class="wave-grid"></div>
+            <div style="margin-top:12px; font-size:0.8rem; color:rgba(255,255,255,0.3); text-align:center;">
+                只能选择已解锁的波次（最高波次 ≥ 目标波次）
+            </div>
+        </div>
+    </div>
+
+    <!-- ====== 游戏规则模态框 ====== -->
+    <div class="modal-overlay" id="rulesModal">
+        <div class="modal-box">
+            <h2>📖 游戏规则 <button class="close-btn" id="rulesCloseBtn">✕</button></h2>
+            <div id="rulesContent" class="rules-content"></div>
+        </div>
+    </div>
+
+    <!-- ====== 升级查看模态框 ====== -->
+    <div class="modal-overlay" id="upgradeModal">
+        <div class="modal-box">
+            <h2>📈 升级查看 <button class="close-btn" id="upgradeCloseBtn">✕</button></h2>
+            <div id="upgradeContent" class="upgrade-preview"></div>
+            <div style="margin-top:12px; font-size:0.8rem; color:rgba(255,255,255,0.3); text-align:center;">
+                此处为示意数据，实际升级系统将在游戏中实现
+            </div>
+        </div>
+    </div>
+
+    <!-- ====== 游戏设置模态框 ====== -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal-box">
+            <h2>⚙️ 游戏设置 <button class="close-btn" id="settingsCloseBtn">✕</button></h2>
+            <div id="settingsContent" style="margin-top:6px;"></div>
+            <div style="margin-top:12px; font-size:0.8rem; color:rgba(255,255,255,0.3); text-align:center;">
+                设置将自动保存至本地
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ================================================================
+        //  永动机的归途是听凭风引 · 功能型首页
+        //  包含：角色解锁、波次选择、游戏设置
+        // ================================================================
+
+        // ---------- 角色数据 ----------
+        const CHARACTERS = {
+            eternal: {
+                id: 'eternal',
+                name: '永动机',
+                emoji: '⚙️',
+                cost: 0,
+                img: 'assets/turret_eternal.png' // 请将图片命名为 turret_eternal.png
+            },
+            sunny: {
+                id: 'sunny',
+                name: '烈阳哥',
+                emoji: '☀️',
+                cost: 500,
+                img: 'assets/turret_sunny.png' // 请将图片命名为 turret_sunny.png
+            },
+            dark_tide: {
+                id: 'dark_tide',
+                name: '黑色潮水',
+                emoji: '🌊',
+                cost: 1500,
+                img: 'assets/turret_darktide.png' // 请将图片命名为 turret_darktide.png
+            }
+        };
+
+        // ---------- 默认数据 ----------
+        const defaultData = {
+            diamonds: 0,
+            maxWave: 1,
+            unlockedChars: ['eternal'],
+            currentChar: 'eternal',
+            settings: {
+                volume: 80,
+                sensitivity: 1.0
+            }
+        };
+
+        // ---------- 数据管理 ----------
+        function loadData() {
+            try {
+                const raw = localStorage.getItem('kaeyaWindProgress');
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    // 确保所有字段都存在
+                    for (const key in defaultData) {
+                        if (!(key in parsed)) {
+                            parsed[key] = defaultData[key];
+                        }
+                    }
+                    // 确保解锁的角色都是有效的
+                    parsed.unlockedChars = parsed.unlockedChars.filter(id => id in CHARACTERS);
+                    if (parsed.unlockedChars.length === 0) {
+                        parsed.unlockedChars = ['eternal'];
+                    }
+                    if (!(parsed.currentChar in CHARACTERS)) {
+                        parsed.currentChar = 'eternal';
+                    }
+                    return parsed;
+                }
+            } catch (e) {
+                console.warn('读取存档失败，使用默认数据', e);
+            }
+            return JSON.parse(JSON.stringify(defaultData));
+        }
+
+        function saveData(data) {
+            try {
+                localStorage.setItem('kaeyaWindProgress', JSON.stringify(data));
+            } catch (e) {
+                console.warn('保存存档失败', e);
+            }
+        }
+
+        // ---------- 全局状态 ----------
+        let gameData = loadData();
+
+        // ---------- DOM 引用 ----------
+        const homeStartBtn = document.getElementById('homeStartBtn');
+        const homeCharacterBtn = document.getElementById('homeCharacterBtn');
+        const homeUpgradeBtn = document.getElementById('homeUpgradeBtn');
+        const homeRulesBtn = document.getElementById('homeRulesBtn');
+        const homeSettingsBtn = document.getElementById('homeSettingsBtn');
+
+        const characterModal = document.getElementById('characterModal');
+        const characterCloseBtn = document.getElementById('characterCloseBtn');
+        const characterContent = document.getElementById('characterContent');
+        const charDiamondDisplay = document.getElementById('charDiamondDisplay');
+
+        const waveModal = document.getElementById('waveModal');
+        const waveCloseBtn = document.getElementById('waveCloseBtn');
+        const waveContent = document.getElementById('waveContent');
+        const currentMaxWaveDisplay = document.getElementById('currentMaxWaveDisplay');
+
+        const rulesModal = document.getElementById('rulesModal');
+        const rulesCloseBtn = document.getElementById('rulesCloseBtn');
+        const rulesContent = document.getElementById('rulesContent');
+
+        const upgradeModal = document.getElementById('upgradeModal');
+        const upgradeCloseBtn = document.getElementById('upgradeCloseBtn');
+        const upgradeContent = document.getElementById('upgradeContent');
+
+        const settingsModal = document.getElementById('settingsModal');
+        const settingsCloseBtn = document.getElementById('settingsCloseBtn');
+        const settingsContent = document.getElementById('settingsContent');
+
+        // ---------- 辅助函数 ----------
+        function rand(min, max) { return Math.random() * (max - min) + min; }
+
+        // ---------- 首页枫叶 ----------
+        function initHomeLeaves() {
+            const container = document.getElementById('homeLeaves');
+            const emojis = ['🍁', '🍂', '🍃', '🌿'];
+            for (let i = 0; i < 30; i++) {
+                const leaf = document.createElement('div');
+                leaf.className = 'home-leaf';
+                leaf.textContent = emojis[i % emojis.length];
+                leaf.style.left = rand(0, 100) + '%';
+                leaf.style.animationDuration = rand(12, 28) + 's';
+                leaf.style.animationDelay = rand(0, 20) + 's';
+                leaf.style.fontSize = rand(18, 38) + 'px';
+                leaf.style.opacity = rand(0.08, 0.25);
+                leaf.style.transform = `rotate(${rand(0,360)}deg)`;
+                container.appendChild(leaf);
+            }
+        }
+        initHomeLeaves();
+
+        // ---------- 角色面板 ----------
+        function renderCharacterPanel() {
+            const data = gameData;
+            let html = `<div class="character-grid">`;
+            for (const [id, char] of Object.entries(CHARACTERS)) {
+                const isUnlocked = data.unlockedChars.includes(id);
+                const isActive = data.currentChar === id;
+                const canAfford = data.diamonds >= char.cost;
+
+                let statusText = '';
+                let statusClass = '';
+                let actionHtml = '';
+
+                if (isUnlocked) {
+                    statusText = '已拥有';
+                    statusClass = 'owned';
+                    if (isActive) {
+                        actionHtml = `<button class="char-action select" disabled>✅ 使用中</button>`;
+                    } else {
+                        actionHtml =
+                            `<button class="char-action select" data-action="select" data-char="${id}">选择</button>`;
+                    }
+                } else {
+                    statusText = `解锁 (${char.cost} 💎)`;
+                    statusClass = canAfford ? 'locked' : 'locked';
+                    actionHtml =
+                        `<button class="char-action" data-action="unlock" data-char="${id}" ${canAfford ? '' : 'disabled'}>${canAfford ? '解锁' : '钻石不足'}</button>`;
+                }
+
+                html += `
+                    <div class="character-card ${isActive ? 'active' : ''}">
+                        <span class="check-mark">✓</span>
+                        <div class="char-img">${char.emoji}</div>
+                        <div class="char-name">${char.name}</div>
+                        <div class="char-status ${statusClass}">${statusText}</div>
+                        ${actionHtml}
+                    </div>
+                `;
+            }
+            html += `</div>`;
+            characterContent.innerHTML = html;
+
+            // 更新钻石显示
+            charDiamondDisplay.textContent = data.diamonds;
+
+            // 事件绑定
+            document.querySelectorAll('[data-action="unlock"]').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const charId = this.dataset.char;
+                    const charData = CHARACTERS[charId];
+                    if (!charData) return;
+                    if (gameData.diamonds >= charData.cost) {
+                        if (confirm(`确定要花费 ${charData.cost} 钻石解锁「${charData.name}」吗？`)) {
+                            gameData.diamonds -= charData.cost;
+                            gameData.unlockedChars.push(charId);
+                            saveData(gameData);
+                            renderCharacterPanel();
+                            // 刷新设置中的钻石显示（如果有）
+                            updateDiamondDisplay();
+                        }
+                    }
+                });
+            });
+
+            document.querySelectorAll('[data-action="select"]').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const charId = this.dataset.char;
+                    if (gameData.unlockedChars.includes(charId)) {
+                        gameData.currentChar = charId;
+                        saveData(gameData);
+                        renderCharacterPanel();
+                        alert(`已切换到「${CHARACTERS[charId].name}」`);
+                    }
+                });
+            });
+        }
+
+        // ---------- 波次选择面板 ----------
+        function renderWaveModal() {
+            const data = gameData;
+            const maxWave = data.maxWave || 1;
+            currentMaxWaveDisplay.textContent = maxWave;
+
+            const waveOptions = [1, 10, 30, 50, 100, 500, 1000, 3000, 5000, 10000];
+            let html = '';
+            for (const wave of waveOptions) {
+                const isUnlocked = maxWave >= wave;
+                html += `
+                    <button class="wave-btn" data-wave="${wave}" ${isUnlocked ? '' : 'disabled'}>
+                        ${wave} 波
+                        <span class="wave-sub">${isUnlocked ? '✅ 可开始' : '🔒 未达到'}</span>
+                    </button>
+                `;
+            }
+            waveContent.innerHTML = html;
+
+            document.querySelectorAll('.wave-btn:not([disabled])').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const wave = parseInt(this.dataset.wave);
+                    startGame(wave);
+                    closeModal(waveModal);
+                });
+            });
+        }
+
+        // ---------- 设置面板 ----------
+        function renderSettings() {
+            const settings = gameData.settings;
+            let html = `
+                <div class="settings-group">
+                    <h3>🎮 操控</h3>
+                    <div class="settings-item">
+                        <label for="sensitivitySlider">鼠标灵敏度</label>
+                        <input type="range" id="sensitivitySlider" min="0.2" max="2.0" step="0.1" value="${settings.sensitivity}">
+                        <span class="value-display" id="sensitivityValue">${settings.sensitivity.toFixed(1)}</span>
+                    </div>
+                </div>
+                <div class="settings-group">
+                    <h3>🔊 音效</h3>
+                    <div class="settings-item">
+                        <label for="volumeSlider">总音量</label>
+                        <input type="range" id="volumeSlider" min="0" max="100" step="1" value="${settings.volume}">
+                        <span class="value-display" id="volumeValue">${settings.volume}%</span>
+                    </div>
+                </div>
+            `;
+            settingsContent.innerHTML = html;
+
+            // 灵敏度
+            const sensSlider = document.getElementById('sensitivitySlider');
+            const sensValue = document.getElementById('sensitivityValue');
+            sensSlider.addEventListener('input', function() {
+                const val = parseFloat(this.value);
+                sensValue.textContent = val.toFixed(1);
+                gameData.settings.sensitivity = val;
+                saveData(gameData);
+            });
+
+            // 音量
+            const volSlider = document.getElementById('volumeSlider');
+            const volValue = document.getElementById('volumeValue');
+            volSlider.addEventListener('input', function() {
+                const val = parseInt(this.value);
+                volValue.textContent = val + '%';
+                gameData.settings.volume = val;
+                saveData(gameData);
+            });
+        }
+
+        // ---------- 规则面板 ----------
+        function renderRules() {
+            const html = `
+                <div class="rule-section">
+                    <h4>🎮 基本操作</h4>
+                    <p><span class="shortcut">W A S D</span> 移动炮塔 · <span class="shortcut">鼠标</span> 瞄准 · <span class="shortcut">按住左键</span> 蓄力射击</p>
+                    <p><span class="shortcut">空格</span> 释放技能 · <span class="shortcut">ESC</span> 暂停/设置 · <span class="shortcut">U</span> 升级面板</p>
+                </div>
+                <div class="rule-section">
+                    <h4>⚔️ 核心玩法</h4>
+                    <p>抵御一波又一波的怪物，保护基地不被突破。每波怪物会逐渐变强，击败怪物可获得 <span class="highlight">金币</span> 和 <span class="highlight">积分</span>。</p>
+                    <p>每<span class="highlight">10波</span>会出现强大的 <span class="highlight">Boss</span>，击败Boss可获得大量奖励。</p>
+                    <p>怪物触碰炮塔会损失生命值，生命归零则游戏结束。</p>
+                </div>
+                <div class="rule-section">
+                    <h4>⚡ 元素反应</h4>
+                    <p>子弹带有 <span class="elem fire">火</span> <span class="elem ice">冰</span> <span class="elem thunder">雷</span> <span class="elem water">水</span> <span class="elem wind">风</span> <span class="elem phys">物理</span> 六种元素，怪物可被附着元素。</p>
+                    <p>不同元素组合触发强力反应：<span class="elem fire">蒸发</span>、<span class="elem ice">融化</span>、<span class="elem thunder">超载</span>、<span class="elem thunder">感电</span>、<span class="elem ice">冻结</span>、<span class="elem wind">扩散</span>、<span class="elem thunder">超导</span>。</p>
+                    <p>升级「<span class="highlight">元素精通</span>」可提升反应伤害。</p>
+                </div>
+                <div class="rule-section">
+                    <h4>📈 升级系统</h4>
+                    <p>使用金币升级：<span class="highlight">攻击力</span>、<span class="highlight">攻击速度</span>、<span class="highlight">生命上限</span>、<span class="highlight">弹射次数</span>、<span class="highlight">移动速度</span>、<span class="highlight">金币获取</span>、<span class="highlight">自然恢复</span>、<span class="highlight">元素精通</span>、<span class="highlight">元素充能</span>、<span class="highlight">技能等级</span>、<span class="highlight">怪物减速</span>。</p>
+                    <p>技能「<span class="highlight">听凭风引</span>」消耗能量释放强化弹，并生成 <span class="highlight">风眼</span> 持续牵引和伤害敌人。</p>
+                </div>
+                <div class="rule-section">
+                    <h4>💎 钻石与进度</h4>
+                    <p>击败怪物有概率掉落 <span class="highlight">钻石</span>，钻石用于解锁角色。游戏进度（升级等级、最高波次、钻石）自动保存在浏览器中。</p>
+                </div>
+                <div style="margin-top:12px; font-size:0.8rem; color:rgba(255,255,255,0.25); text-align:center; border-top:1px solid rgba(255,255,255,0.05); padding-top:10px;">
+                    「永动机的归途是听凭风引」 · 风起之时，便是归途
+                </div>
+            `;
+            rulesContent.innerHTML = html;
+        }
+
+        // ---------- 升级查看（示例） ----------
+        function renderUpgradePreview() {
+            const upgrades = [
+                { label: '⚔️ 攻击力', value: 'Lv.3 (25)' },
+                { label: '🏹 攻击速度', value: 'Lv.2 (冷却0.9s)' },
+                { label: '❤️ 生命上限', value: 'Lv.4 (50)' },
+                { label: '🌀 弹射次数', value: 'Lv.1 (2次)' },
+                { label: '💨 移动速度', value: 'Lv.2 (4.5px/帧)' },
+                { label: '💰 金币获取', value: 'Lv.3 (+3)' },
+                { label: '💚 自然恢复速度', value: 'Lv.1 (0.8/秒)' },
+                { label: '🌟 元素精通', value: 'Lv.2 (+24%)' },
+                { label: '⚡ 元素充能', value: 'Lv.2 (+20%)' },
+                { label: '🌀 技能等级', value: 'Lv.1 (强化1.8倍)' },
+                { label: '🐌 怪物移速降低', value: 'Lv.1 (95%)' }
+            ];
+            let html = '';
+            for (const item of upgrades) {
+                html += `
+                    <div class="upgrade-item">
+                        <span class="label">${item.label}</span>
+                        <span class="value">${item.value}</span>
+                    </div>
+                `;
+            }
+            upgradeContent.innerHTML = html;
+        }
+
+        // ---------- 钻石显示更新 ----------
+        function updateDiamondDisplay() {
+            // 在角色面板中更新
+            if (charDiamondDisplay) {
+                charDiamondDisplay.textContent = gameData.diamonds;
+            }
+        }
+
+        // ---------- 开始游戏逻辑 ----------
+        function startGame(wave) {
+            // 这里将开始游戏，传递起始波次
+            // 实际游戏中，会隐藏首页，显示游戏画布，并初始化第 wave 波
+            alert(`🌊 从第 ${wave} 波开始游戏！\n（实际游戏中将跳转至游戏主界面）`);
+            // 示例：传递数据给游戏引擎
+            console.log(`Starting game at wave ${wave} with character ${gameData.currentChar}`);
+            // 可以在这里触发自定义事件或调用全局函数
+            // window.dispatchEvent(new CustomEvent('gameStart', { detail: { wave, character: gameData.currentChar } }));
+        }
+
+        // ---------- 模态框控制 ----------
+        function openModal(modal) {
+            modal.classList.add('show');
+        }
+
+        function closeModal(modal) {
+            modal.classList.remove('show');
+        }
+
+        // ---------- 事件绑定 ----------
+        // 开始游戏 -> 打开波次选择
+        homeStartBtn.addEventListener('click', function() {
+            renderWaveModal();
+            openModal(waveModal);
+        });
+
+        // 角色更换
+        homeCharacterBtn.addEventListener('click', function() {
+            renderCharacterPanel();
+            openModal(characterModal);
+        });
+        characterCloseBtn.addEventListener('click', function() {
+            closeModal(characterModal);
+        });
+        characterModal.addEventListener('click', function(e) {
+            if (e.target === this) closeModal(characterModal);
+        });
+
+        // 波次选择
+        waveCloseBtn.addEventListener('click', function() {
+            closeModal(waveModal);
+        });
+        waveModal.addEventListener('click', function(e) {
+            if (e.target === this) closeModal(waveModal);
+        });
+
+        // 游戏规则
+        homeRulesBtn.addEventListener('click', function() {
+            renderRules();
+            openModal(rulesModal);
+        });
+        rulesCloseBtn.addEventListener('click', function() {
+            closeModal(rulesModal);
+        });
+        rulesModal.addEventListener('click', function(e) {
+            if (e.target === this) closeModal(rulesModal);
+        });
+
+        // 升级查看
+        homeUpgradeBtn.addEventListener('click', function() {
+            renderUpgradePreview();
+            openModal(upgradeModal);
+        });
+        upgradeCloseBtn.addEventListener('click', function() {
+            closeModal(upgradeModal);
+        });
+        upgradeModal.addEventListener('click', function(e) {
+            if (e.target === this) closeModal(upgradeModal);
+        });
+
+        // 游戏设置
+        homeSettingsBtn.addEventListener('click', function() {
+            renderSettings();
+            openModal(settingsModal);
+        });
+        settingsCloseBtn.addEventListener('click', function() {
+            closeModal(settingsModal);
+        });
+        settingsModal.addEventListener('click', function(e) {
+            if (e.target === this) closeModal(settingsModal);
+        });
+
+        // 键盘快捷键：ESC关闭所有模态框
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const modals = [characterModal, waveModal, rulesModal, upgradeModal, settingsModal];
+                for (const modal of modals) {
+                    if (modal.classList.contains('show')) {
+                        closeModal(modal);
+                    }
+                }
+            }
+        });
+
+        // ---------- 初始化 ----------
+        console.log('🍁 永动机的归途是听凭风引 · 功能型首页已加载');
+        console.log('📌 角色图片命名要求:');
+        console.log('   - 永动机: assets/turret_eternal.png');
+        console.log('   - 烈阳哥: assets/turret_sunny.png');
+        console.log('   - 黑色潮水: assets/turret_darktide.png');
+        console.log('📊 当前游戏数据:', gameData);
+    </script>
+</body>
+</html>
