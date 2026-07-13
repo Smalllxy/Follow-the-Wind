@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>永动机的归途是听凭风引 · 首页</title>
+    <!-- 预加载角色图片，加速跳转后显示 -->
+    <link rel="preload" as="image" href="assets/turret_eternal.png">
+    <link rel="preload" as="image" href="assets/turret_sunny.png">
+    <link rel="preload" as="image" href="assets/turret_darktide.png">
     <style>
         /* ========== 全局重置 ========== */
         * {
@@ -38,7 +42,7 @@
             overflow: hidden;
         }
 
-        /* 首页枫叶背景 */
+        /* 首页枫叶背景（20个元素，性能优化） */
         #homeLeaves {
             position: absolute;
             top: 0;
@@ -51,7 +55,7 @@
         }
         .home-leaf {
             position: absolute;
-            font-size: 28px;
+            font-size: 24px;
             opacity: 0.2;
             animation: leafFall linear infinite;
             will-change: transform;
@@ -72,6 +76,37 @@
                 transform: translateY(110vh) rotate(720deg) scale(1.2);
                 opacity: 0.05;
             }
+        }
+
+        /* 全局钻石显示（右上角固定） */
+        #globalDiamond {
+            position: fixed;
+            top: 12px;
+            right: 16px;
+            z-index: 99999;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            padding: 6px 16px 6px 12px;
+            border-radius: 30px;
+            border: 1px solid rgba(0, 210, 211, 0.25);
+            color: #00d2d3;
+            font-weight: 600;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            pointer-events: none;
+        }
+        #globalDiamond .icon {
+            font-size: 1.1rem;
+        }
+        #globalDiamond .num {
+            color: #fff;
+            font-weight: 700;
+            min-width: 20px;
+            text-align: center;
         }
 
         /* 首页内容 */
@@ -119,8 +154,30 @@
             color: rgba(255, 215, 0, 0.35);
             letter-spacing: 0.3em;
             margin-top: -8px;
-            margin-bottom: 22px;
+            margin-bottom: 12px;
             font-style: italic;
+        }
+
+        /* 首页统计行（强化显示） */
+        .home-stats {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            font-size: clamp(0.9rem, 1.4vw, 1.15rem);
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 20px;
+            padding: 8px 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            letter-spacing: 0.03em;
+        }
+        .home-stats strong {
+            color: #ffd93d;
+            font-weight: 700;
+            text-shadow: 0 0 12px rgba(255, 215, 0, 0.15);
         }
 
         /* 首页按钮组 */
@@ -181,18 +238,19 @@
             line-height: 1;
         }
         .home-btn-group .home-btn.primary {
-            background: rgba(255, 215, 0, 0.15);
-            border-color: rgba(255, 215, 0, 0.25);
-            box-shadow: 0 4px 24px rgba(255, 215, 0, 0.08);
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.18), rgba(241, 196, 15, 0.08));
+            border-color: rgba(255, 215, 0, 0.35);
+            box-shadow: 0 4px 24px rgba(255, 215, 0, 0.08), inset 0 0 30px rgba(255, 215, 0, 0.02);
+            font-weight: 700;
         }
         .home-btn-group .home-btn.primary:hover {
-            background: rgba(255, 215, 0, 0.25);
-            border-color: rgba(255, 215, 0, 0.5);
-            box-shadow: 0 8px 40px rgba(255, 215, 0, 0.15);
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.28), rgba(241, 196, 15, 0.15));
+            border-color: rgba(255, 215, 0, 0.6);
+            box-shadow: 0 8px 40px rgba(255, 215, 0, 0.15), inset 0 0 40px rgba(255, 215, 0, 0.04);
         }
 
         #homeContent .version {
-            margin-top: 28px;
+            margin-top: 22px;
             font-size: 0.75rem;
             color: rgba(255, 255, 255, 0.15);
             letter-spacing: 0.2em;
@@ -286,6 +344,54 @@
             font-size: 0.95rem;
         }
 
+        /* 确认/提示模态框 */
+        .confirm-modal .modal-box {
+            max-width: 420px;
+        }
+        .confirm-modal .modal-actions {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 18px;
+        }
+        .confirm-modal .modal-actions button {
+            padding: 8px 28px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: 0.2s;
+            border: none;
+            font-family: inherit;
+        }
+        .confirm-modal .modal-actions .btn-confirm {
+            background: rgba(255, 215, 0, 0.25);
+            color: #fff;
+            border: 1px solid rgba(255, 215, 0, 0.4);
+        }
+        .confirm-modal .modal-actions .btn-confirm:hover {
+            background: rgba(255, 215, 0, 0.4);
+        }
+        .confirm-modal .modal-actions .btn-cancel {
+            background: rgba(255, 255, 255, 0.08);
+            color: #aaa;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .confirm-modal .modal-actions .btn-cancel:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+        .confirm-modal .modal-message {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #d0d8e8;
+            text-align: center;
+            padding: 6px 0;
+        }
+        .confirm-modal .modal-message .highlight {
+            color: #ffd93d;
+            font-weight: 600;
+        }
+
         /* ========== 角色选择 ========== */
         .character-grid {
             display: grid;
@@ -327,6 +433,12 @@
             font-size: 2.4rem;
             margin-bottom: 4px;
             border: 2px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+        }
+        .character-card .char-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
         .character-card .char-name {
             font-weight: 600;
@@ -387,6 +499,35 @@
             display: block;
         }
 
+        /* 抽卡入口 */
+        .wish-entry {
+            margin-top: 16px;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            padding-top: 14px;
+        }
+        .wish-entry .wish-btn {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(241, 196, 15, 0.05));
+            border: 1px solid rgba(255, 215, 0, 0.25);
+            color: #ffd93d;
+            padding: 8px 30px;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.25s;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .wish-entry .wish-btn:hover {
+            background: rgba(255, 215, 0, 0.2);
+            border-color: rgba(255, 215, 0, 0.5);
+            transform: scale(1.03);
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.05);
+        }
+
         /* ========== 波次选择 ========== */
         .wave-grid {
             display: grid;
@@ -424,6 +565,53 @@
             display: block;
             margin-top: 2px;
             font-weight: 400;
+        }
+
+        /* 自定义波次输入 */
+        .wave-custom {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            justify-content: center;
+            margin: 8px 0 4px;
+            flex-wrap: wrap;
+        }
+        .wave-custom label {
+            color: #aab;
+            font-size: 0.9rem;
+        }
+        .wave-custom input {
+            background: #222;
+            border: 1px solid #444;
+            color: #fff;
+            padding: 4px 10px;
+            border-radius: 6px;
+            width: 90px;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+        .wave-custom input:focus {
+            outline: none;
+            border-color: #f1c40f;
+        }
+        .wave-custom .btn-sm {
+            background: rgba(255, 215, 0, 0.15);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            color: #fff;
+            padding: 4px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            font-family: inherit;
+            font-size: 0.85rem;
+        }
+        .wave-custom .btn-sm:hover:not(:disabled) {
+            background: rgba(255, 215, 0, 0.3);
+        }
+        .wave-custom .btn-sm:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
         }
 
         /* ========== 游戏规则 ========== */
@@ -535,31 +723,85 @@
             min-width: 30px;
             text-align: center;
         }
+        .settings-item .btn-sm {
+            background: rgba(255, 215, 0, 0.15);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            color: #fff;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            font-family: inherit;
+            font-size: 0.8rem;
+        }
+        .settings-item .btn-sm:hover:not(:disabled) {
+            background: rgba(255, 215, 0, 0.3);
+        }
+        .settings-item .btn-sm:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .settings-item .btn-sm.danger {
+            background: rgba(255, 70, 70, 0.2);
+            border-color: #ff4444;
+            color: #ff6b6b;
+        }
+        .settings-item .btn-sm.danger:hover:not(:disabled) {
+            background: rgba(255, 70, 70, 0.35);
+        }
 
-        /* ========== 升级查看（示例） ========== */
+        /* ========== 升级查看（含降级功能） ========== */
         .upgrade-preview {
             display: flex;
             flex-direction: column;
             gap: 6px;
         }
-        .upgrade-preview .upgrade-item {
+        .upgrade-item {
             display: flex;
             justify-content: space-between;
+            align-items: center;
             padding: 4px 8px;
             background: rgba(255, 255, 255, 0.04);
             border-radius: 6px;
             font-size: 0.9rem;
             border: 1px solid transparent;
+            flex-wrap: wrap;
+            gap: 4px;
         }
-        .upgrade-preview .upgrade-item:hover {
+        .upgrade-item:hover {
             border-color: rgba(255, 215, 0, 0.15);
         }
-        .upgrade-preview .upgrade-item .label {
+        .upgrade-item .label {
             color: #ddd;
+            flex: 1;
         }
-        .upgrade-preview .upgrade-item .value {
+        .upgrade-item .value {
             color: #ffd93d;
             font-weight: 600;
+            margin-right: 8px;
+        }
+        .upgrade-item .downgrade-btn {
+            background: rgba(255, 70, 70, 0.15);
+            border: 1px solid rgba(255, 70, 70, 0.3);
+            color: #ff6b6b;
+            padding: 1px 10px;
+            border-radius: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.75rem;
+            transition: 0.2s;
+            white-space: nowrap;
+        }
+        .upgrade-item .downgrade-btn:hover:not(:disabled) {
+            background: rgba(255, 70, 70, 0.3);
+            transform: scale(1.05);
+        }
+        .upgrade-item .downgrade-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            transform: none;
         }
 
         /* ========== 响应式 ========== */
@@ -589,6 +831,25 @@
             #homeContent .title {
                 font-size: clamp(1.6rem, 6vw, 2.6rem);
             }
+            .home-stats {
+                gap: 14px;
+                font-size: 0.75rem;
+                padding: 4px 12px;
+                flex-wrap: wrap;
+            }
+            #globalDiamond {
+                font-size: 0.8rem;
+                padding: 4px 12px 4px 8px;
+                top: 8px;
+                right: 10px;
+            }
+            .upgrade-item {
+                flex-wrap: wrap;
+                gap: 2px;
+            }
+            .upgrade-item .value {
+                margin-right: 4px;
+            }
         }
         @media (max-width: 400px) {
             .character-grid {
@@ -611,10 +872,24 @@
             .wave-grid {
                 grid-template-columns: repeat(3, 1fr);
             }
+            .wave-custom {
+                flex-direction: column;
+                gap: 4px;
+            }
+            .wave-custom input {
+                width: 100%;
+                max-width: 120px;
+            }
         }
     </style>
 </head>
 <body>
+
+    <!-- 全局钻石显示（右上角固定） -->
+    <div id="globalDiamond">
+        <span class="icon">💎</span>
+        <span class="num" id="globalDiamondNum">0</span>
+    </div>
 
     <!-- ====== 首页 ====== -->
     <div id="homeScreen">
@@ -623,6 +898,13 @@
             <div class="title">永动机的归途是听凭风引</div>
             <div class="subtitle">· 移 动 炮 台 ·</div>
             <div class="tagline">「 风起之时，便是归途 」</div>
+
+            <!-- 历史数据统计 -->
+            <div class="home-stats">
+                <span>🏆 最高波次: <strong id="homeMaxWave">1</strong></span>
+                <span>🏅 最高积分: <strong id="homeHighScore">0</strong></span>
+            </div>
+
             <div class="home-btn-group">
                 <button class="home-btn primary" id="homeStartBtn"><span class="icon">🌊</span> 开始游戏</button>
                 <button class="home-btn" id="homeCharacterBtn"><span class="icon">👤</span> 角色更换</button>
@@ -630,7 +912,7 @@
                 <button class="home-btn" id="homeRulesBtn"><span class="icon">📖</span> 游戏规则</button>
                 <button class="home-btn" id="homeSettingsBtn"><span class="icon">⚙️</span> 游戏设置</button>
             </div>
-            <div class="version">v2.3 · 枫叶纷飞 · 风引归途</div>
+            <div class="version">v2.5 · 枫叶纷飞 · 风引归途</div>
         </div>
     </div>
 
@@ -640,7 +922,12 @@
             <h2>👤 角色更换 <button class="close-btn" id="characterCloseBtn">✕</button></h2>
             <div class="diamond-balance">💎 当前钻石：<span id="charDiamondDisplay">0</span></div>
             <div id="characterContent" style="margin-top:4px;"></div>
-            <div style="margin-top:12px; font-size:0.8rem; color:rgba(255,255,255,0.3); text-align:center;">
+            <!-- 抽卡入口 -->
+            <div class="wish-entry">
+                <button class="wish-btn" id="wishBtn">🎴 抽卡</button>
+                <div style="font-size:0.7rem; color:rgba(255,255,255,0.2); margin-top:4px;">前往 wish.html 获取新角色</div>
+            </div>
+            <div style="margin-top:8px; font-size:0.8rem; color:rgba(255,255,255,0.3); text-align:center;">
                 角色无属性加成，仅改变炮塔外观。使用钻石解锁。
             </div>
         </div>
@@ -654,8 +941,14 @@
                 当前最高波次：<span id="currentMaxWaveDisplay" style="color:#ffd93d; font-weight:600;">1</span>
             </div>
             <div id="waveContent" class="wave-grid"></div>
-            <div style="margin-top:12px; font-size:0.8rem; color:rgba(255,255,255,0.3); text-align:center;">
-                只能选择已解锁的波次（最高波次 ≥ 目标波次）
+            <!-- 自定义波次输入 -->
+            <div class="wave-custom">
+                <label for="customWaveInput">自定义波次：</label>
+                <input type="number" id="customWaveInput" min="1" max="99999" value="1">
+                <button class="btn-sm" id="customWaveBtn">出发</button>
+            </div>
+            <div style="margin-top:8px; font-size:0.8rem; color:rgba(255,255,255,0.3); text-align:center;">
+                只能选择 ≤ 最高波次的数值，快捷按钮可快速选择。
             </div>
         </div>
     </div>
@@ -668,13 +961,13 @@
         </div>
     </div>
 
-    <!-- ====== 升级查看模态框 ====== -->
+    <!-- ====== 升级查看模态框（含降级功能） ====== -->
     <div class="modal-overlay" id="upgradeModal">
         <div class="modal-box">
-            <h2>📈 升级查看 <button class="close-btn" id="upgradeCloseBtn">✕</button></h2>
+            <h2>📈 升级查看 &amp; 降级 <button class="close-btn" id="upgradeCloseBtn">✕</button></h2>
             <div id="upgradeContent" class="upgrade-preview"></div>
             <div style="margin-top:12px; font-size:0.8rem; color:rgba(255,255,255,0.3); text-align:center;">
-                此处为示意数据，实际升级系统将在游戏中实现
+                降级将退回等级并返还钻石（等于原等级），最低降至初始等级。
             </div>
         </div>
     </div>
@@ -690,10 +983,35 @@
         </div>
     </div>
 
+    <!-- ====== 自定义确认对话框 ====== -->
+    <div class="modal-overlay confirm-modal" id="confirmModal">
+        <div class="modal-box">
+            <h2 id="confirmTitle">确认</h2>
+            <div class="modal-message" id="confirmMessage"></div>
+            <div class="modal-actions">
+                <button class="btn-cancel" id="confirmCancel">取消</button>
+                <button class="btn-confirm" id="confirmOk">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====== 自定义提示对话框 ====== -->
+    <div class="modal-overlay confirm-modal" id="alertModal">
+        <div class="modal-box">
+            <h2 id="alertTitle">提示</h2>
+            <div class="modal-message" id="alertMessage"></div>
+            <div class="modal-actions">
+                <button class="btn-confirm" id="alertOk" style="margin:0 auto;">确定</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // ================================================================
-        //  永动机的归途是听凭风引 · 功能型首页
-        //  包含：角色解锁、波次选择、游戏设置
+        //  永动机的归途是听凭风引 · 功能型首页（优化版）
+        //  包含：角色解锁、波次选择、自定义波次、全局钻石、重置进度
+        //  新增：降级功能、内置弹窗、抽卡入口
+        //  数据字段统一为 diamond（单数），与 game.html 完全一致
         // ================================================================
 
         // ---------- 角色数据 ----------
@@ -703,47 +1021,68 @@
                 name: '永动机',
                 emoji: '⚙️',
                 cost: 0,
-                img: 'assets/turret_eternal.png' // 请将图片命名为 turret_eternal.png
+                img: 'assets/turret_eternal.png'
             },
             sunny: {
                 id: 'sunny',
                 name: '烈阳哥',
                 emoji: '☀️',
                 cost: 500,
-                img: 'assets/turret_sunny.png' // 请将图片命名为 turret_sunny.png
+                img: 'assets/turret_sunny.png'
             },
             dark_tide: {
                 id: 'dark_tide',
                 name: '黑色潮水',
                 emoji: '🌊',
                 cost: 1500,
-                img: 'assets/turret_darktide.png' // 请将图片命名为 turret_darktide.png
+                img: 'assets/turret_darktide.png'
             }
         };
 
-        // ---------- 默认数据 ----------
+        // ---------- 默认数据（所有字段与 game.html 保持一致） ----------
         const defaultData = {
-            diamonds: 0,
+            diamond: 0, // 统一使用 diamond 单数
             maxWave: 1,
             unlockedChars: ['eternal'],
             currentChar: 'eternal',
+            autoShootUnlocked: false,
             settings: {
                 volume: 80,
                 sensitivity: 1.0
-            }
+            },
+            // 升级等级
+            attackLevel: 1,
+            attackSpeedLevel: 1,
+            healthLevel: 1,
+            bounceLevel: 0,
+            moveSpeedLevel: 1,
+            goldLevel: 1,
+            skillLevel: 0,
+            elementMasteryLevel: 0,
+            energyRechargeLevel: 0,
+            monsterSpeedLevel: 0,
+            healthRegenLevel: 0
         };
 
         // ---------- 数据管理 ----------
+        const STORAGE_KEY = 'kaeyaWindProgress';
+        const HIGH_SCORE_KEY = 'kaeyaWindHighScore';
+
         function loadData() {
             try {
-                const raw = localStorage.getItem('kaeyaWindProgress');
+                const raw = localStorage.getItem(STORAGE_KEY);
                 if (raw) {
                     const parsed = JSON.parse(raw);
-                    // 确保所有字段都存在
+                    // 确保所有字段都存在，缺失则用默认值
                     for (const key in defaultData) {
                         if (!(key in parsed)) {
                             parsed[key] = defaultData[key];
                         }
+                    }
+                    // 兼容旧版 diamonds 字段（如果存在则迁移）
+                    if (parsed.diamonds !== undefined && parsed.diamond === undefined) {
+                        parsed.diamond = parsed.diamonds;
+                        delete parsed.diamonds;
                     }
                     // 确保解锁的角色都是有效的
                     parsed.unlockedChars = parsed.unlockedChars.filter(id => id in CHARACTERS);
@@ -763,14 +1102,32 @@
 
         function saveData(data) {
             try {
-                localStorage.setItem('kaeyaWindProgress', JSON.stringify(data));
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
             } catch (e) {
                 console.warn('保存存档失败', e);
             }
         }
 
+        function loadHighScore() {
+            try {
+                const val = parseInt(localStorage.getItem(HIGH_SCORE_KEY)) || 0;
+                return val;
+            } catch (e) { return 0; }
+        }
+
+        function clearAllData() {
+            localStorage.removeItem(STORAGE_KEY);
+            localStorage.removeItem(HIGH_SCORE_KEY);
+            // 重置全局数据
+            gameData = JSON.parse(JSON.stringify(defaultData));
+            highScore = 0;
+            saveData(gameData);
+            updateAllUI();
+        }
+
         // ---------- 全局状态 ----------
         let gameData = loadData();
+        let highScore = loadHighScore();
 
         // ---------- DOM 引用 ----------
         const homeStartBtn = document.getElementById('homeStartBtn');
@@ -783,11 +1140,14 @@
         const characterCloseBtn = document.getElementById('characterCloseBtn');
         const characterContent = document.getElementById('characterContent');
         const charDiamondDisplay = document.getElementById('charDiamondDisplay');
+        const wishBtn = document.getElementById('wishBtn');
 
         const waveModal = document.getElementById('waveModal');
         const waveCloseBtn = document.getElementById('waveCloseBtn');
         const waveContent = document.getElementById('waveContent');
         const currentMaxWaveDisplay = document.getElementById('currentMaxWaveDisplay');
+        const customWaveInput = document.getElementById('customWaveInput');
+        const customWaveBtn = document.getElementById('customWaveBtn');
 
         const rulesModal = document.getElementById('rulesModal');
         const rulesCloseBtn = document.getElementById('rulesCloseBtn');
@@ -801,21 +1161,131 @@
         const settingsCloseBtn = document.getElementById('settingsCloseBtn');
         const settingsContent = document.getElementById('settingsContent');
 
+        // 首页统计和全局钻石
+        const homeMaxWaveEl = document.getElementById('homeMaxWave');
+        const homeHighScoreEl = document.getElementById('homeHighScore');
+        const globalDiamondNum = document.getElementById('globalDiamondNum');
+
+        // 自定义弹窗元素
+        const confirmModal = document.getElementById('confirmModal');
+        const confirmTitle = document.getElementById('confirmTitle');
+        const confirmMessage = document.getElementById('confirmMessage');
+        const confirmOk = document.getElementById('confirmOk');
+        const confirmCancel = document.getElementById('confirmCancel');
+
+        const alertModal = document.getElementById('alertModal');
+        const alertTitle = document.getElementById('alertTitle');
+        const alertMessage = document.getElementById('alertMessage');
+        const alertOkBtn = document.getElementById('alertOk');
+
         // ---------- 辅助函数 ----------
         function rand(min, max) { return Math.random() * (max - min) + min; }
 
-        // ---------- 首页枫叶 ----------
+        // ---------- 自定义弹窗 ----------
+        let confirmResolve = null;
+        let alertResolve = null;
+
+        function showConfirm(title, message) {
+            return new Promise((resolve) => {
+                confirmTitle.textContent = title;
+                confirmMessage.innerHTML = message;
+                confirmModal.classList.add('show');
+                document.body.style.overflow = 'hidden';
+                confirmResolve = resolve;
+            });
+        }
+
+        function showAlert(title, message) {
+            return new Promise((resolve) => {
+                alertTitle.textContent = title;
+                alertMessage.innerHTML = message;
+                alertModal.classList.add('show');
+                document.body.style.overflow = 'hidden';
+                alertResolve = resolve;
+            });
+        }
+
+        // 确认按钮
+        confirmOk.addEventListener('click', () => {
+            confirmModal.classList.remove('show');
+            document.body.style.overflow = '';
+            if (confirmResolve) {
+                confirmResolve(true);
+                confirmResolve = null;
+            }
+        });
+        confirmCancel.addEventListener('click', () => {
+            confirmModal.classList.remove('show');
+            document.body.style.overflow = '';
+            if (confirmResolve) {
+                confirmResolve(false);
+                confirmResolve = null;
+            }
+        });
+        // 点击外部关闭取消
+        confirmModal.addEventListener('click', (e) => {
+            if (e.target === confirmModal) {
+                confirmCancel.click();
+            }
+        });
+
+        // 提示框确定
+        alertOkBtn.addEventListener('click', () => {
+            alertModal.classList.remove('show');
+            document.body.style.overflow = '';
+            if (alertResolve) {
+                alertResolve(true);
+                alertResolve = null;
+            }
+        });
+        alertModal.addEventListener('click', (e) => {
+            if (e.target === alertModal) {
+                alertOkBtn.click();
+            }
+        });
+
+        // ---------- 更新所有 UI（数据变更后调用） ----------
+        function updateAllUI() {
+            // 首页统计
+            homeMaxWaveEl.textContent = gameData.maxWave || 1;
+            homeHighScoreEl.textContent = highScore;
+            // 全局钻石
+            globalDiamondNum.textContent = gameData.diamond;
+            // 角色面板钻石（如果打开）
+            if (charDiamondDisplay) {
+                charDiamondDisplay.textContent = gameData.diamond;
+            }
+            // 如果设置面板打开，重新渲染
+            if (settingsModal.classList.contains('show')) {
+                renderSettings();
+            }
+            // 如果角色面板打开，重新渲染
+            if (characterModal.classList.contains('show')) {
+                renderCharacterPanel();
+            }
+            // 如果波次面板打开，刷新波次显示（最高波次可能变了）
+            if (waveModal.classList.contains('show')) {
+                renderWaveModal();
+            }
+            // 如果升级面板打开，重新渲染升级内容
+            if (upgradeModal.classList.contains('show')) {
+                renderUpgradePreview();
+            }
+        }
+
+        // ---------- 首页枫叶（20个，性能优化） ----------
         function initHomeLeaves() {
             const container = document.getElementById('homeLeaves');
             const emojis = ['🍁', '🍂', '🍃', '🌿'];
-            for (let i = 0; i < 30; i++) {
+            const count = 20;
+            for (let i = 0; i < count; i++) {
                 const leaf = document.createElement('div');
                 leaf.className = 'home-leaf';
                 leaf.textContent = emojis[i % emojis.length];
                 leaf.style.left = rand(0, 100) + '%';
                 leaf.style.animationDuration = rand(12, 28) + 's';
                 leaf.style.animationDelay = rand(0, 20) + 's';
-                leaf.style.fontSize = rand(18, 38) + 'px';
+                leaf.style.fontSize = rand(18, 34) + 'px';
                 leaf.style.opacity = rand(0.08, 0.25);
                 leaf.style.transform = `rotate(${rand(0,360)}deg)`;
                 container.appendChild(leaf);
@@ -830,7 +1300,7 @@
             for (const [id, char] of Object.entries(CHARACTERS)) {
                 const isUnlocked = data.unlockedChars.includes(id);
                 const isActive = data.currentChar === id;
-                const canAfford = data.diamonds >= char.cost;
+                const canAfford = data.diamond >= char.cost;
 
                 let statusText = '';
                 let statusClass = '';
@@ -855,7 +1325,9 @@
                 html += `
                     <div class="character-card ${isActive ? 'active' : ''}">
                         <span class="check-mark">✓</span>
-                        <div class="char-img">${char.emoji}</div>
+                        <div class="char-img">
+                            <img src="${char.img}" alt="${char.name}" onerror="this.style.display='none';this.parentElement.textContent='${char.emoji}'">
+                        </div>
                         <div class="char-name">${char.name}</div>
                         <div class="char-status ${statusClass}">${statusText}</div>
                         ${actionHtml}
@@ -866,38 +1338,48 @@
             characterContent.innerHTML = html;
 
             // 更新钻石显示
-            charDiamondDisplay.textContent = data.diamonds;
+            charDiamondDisplay.textContent = data.diamond;
 
-            // 事件绑定
+            // 事件绑定 - 使用自定义弹窗
             document.querySelectorAll('[data-action="unlock"]').forEach(btn => {
-                btn.addEventListener('click', function() {
+                btn.addEventListener('click', async function() {
                     const charId = this.dataset.char;
                     const charData = CHARACTERS[charId];
                     if (!charData) return;
-                    if (gameData.diamonds >= charData.cost) {
-                        if (confirm(`确定要花费 ${charData.cost} 钻石解锁「${charData.name}」吗？`)) {
-                            gameData.diamonds -= charData.cost;
+                    if (gameData.diamond >= charData.cost) {
+                        const confirm = await showConfirm(
+                            '🔓 解锁角色',
+                            `确定要花费 <span class="highlight">${charData.cost} 💎</span> 解锁「${charData.name}」吗？`
+                        );
+                        if (confirm) {
+                            gameData.diamond -= charData.cost;
                             gameData.unlockedChars.push(charId);
                             saveData(gameData);
                             renderCharacterPanel();
-                            // 刷新设置中的钻石显示（如果有）
-                            updateDiamondDisplay();
+                            updateAllUI();
+                            await showAlert('✅ 解锁成功', `你已成功解锁「${charData.name}」！`);
                         }
                     }
                 });
             });
 
             document.querySelectorAll('[data-action="select"]').forEach(btn => {
-                btn.addEventListener('click', function() {
+                btn.addEventListener('click', async function() {
                     const charId = this.dataset.char;
                     if (gameData.unlockedChars.includes(charId)) {
                         gameData.currentChar = charId;
                         saveData(gameData);
                         renderCharacterPanel();
-                        alert(`已切换到「${CHARACTERS[charId].name}」`);
+                        updateAllUI();
+                        await showAlert('👤 角色切换', `已切换到「${CHARACTERS[charId].name}」`);
                     }
                 });
             });
+
+            // 抽卡按钮
+            wishBtn.onclick = function() {
+                window.location.href = 'wish.html';
+            };
         }
 
         // ---------- 波次选择面板 ----------
@@ -905,8 +1387,10 @@
             const data = gameData;
             const maxWave = data.maxWave || 1;
             currentMaxWaveDisplay.textContent = maxWave;
+            customWaveInput.max = maxWave;
+            customWaveInput.value = Math.min(maxWave, 1);
 
-            const waveOptions = [1, 10, 30, 50, 100, 500, 1000, 3000, 5000, 10000];
+            const waveOptions = [1, 10, 30, 50, 100, 500, 1000, 3000, 5000];
             let html = '';
             for (const wave of waveOptions) {
                 const isUnlocked = maxWave >= wave;
@@ -919,6 +1403,7 @@
             }
             waveContent.innerHTML = html;
 
+            // 快捷按钮事件
             document.querySelectorAll('.wave-btn:not([disabled])').forEach(btn => {
                 btn.addEventListener('click', function() {
                     const wave = parseInt(this.dataset.wave);
@@ -926,11 +1411,28 @@
                     closeModal(waveModal);
                 });
             });
+
+            // 自定义波次按钮事件
+            customWaveBtn.onclick = function() {
+                const val = parseInt(customWaveInput.value);
+                if (!isNaN(val) && val > 0 && val <= maxWave) {
+                    startGame(val);
+                    closeModal(waveModal);
+                } else {
+                    showAlert('❌ 无效波次', `请输入 1 ~ ${maxWave} 之间的波次`);
+                }
+            };
+            customWaveInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') customWaveBtn.click();
+            });
         }
 
         // ---------- 设置面板 ----------
         function renderSettings() {
             const settings = gameData.settings;
+            const autoUnlocked = gameData.autoShootUnlocked;
+            const canAfford = gameData.diamond >= 6666;
+
             let html = `
                 <div class="settings-group">
                     <h3>🎮 操控</h3>
@@ -948,28 +1450,93 @@
                         <span class="value-display" id="volumeValue">${settings.volume}%</span>
                     </div>
                 </div>
+                <div class="settings-group">
+                    <h3>🛠️ 特殊功能</h3>
+                    <div class="settings-item">
+                        <label>🤖 自动射击</label>
+                        ${autoUnlocked ? 
+                            `<span style="color:#2ed573; font-weight:600;">✅ 已解锁</span>` :
+                            `<button class="btn-sm ${canAfford ? '' : 'disabled'}" id="unlockAutoBtn" ${canAfford ? '' : 'disabled'}>解锁 (6666 💎)</button>`
+                        }
+                    </div>
+                    ${!autoUnlocked ? `<div style="font-size:0.75rem; color:#aab; padding-left:12px;">需要 6666 钻石解锁此功能</div>` : ''}
+                </div>
+                <div class="settings-group" style="border-top:1px solid rgba(255,255,255,0.1); padding-top:14px; margin-top:10px;">
+                    <div class="settings-item" style="justify-content:center;">
+                        <button class="btn-sm danger" id="resetProgressBtn" style="padding:6px 24px; font-size:0.9rem;">🗑️ 重置所有进度</button>
+                    </div>
+                    <div style="font-size:0.75rem; color:#aab; text-align:center; margin-top:6px;">清除所有存档数据，包括钻石、角色解锁、最高波次等</div>
+                </div>
             `;
             settingsContent.innerHTML = html;
 
             // 灵敏度
             const sensSlider = document.getElementById('sensitivitySlider');
             const sensValue = document.getElementById('sensitivityValue');
-            sensSlider.addEventListener('input', function() {
-                const val = parseFloat(this.value);
-                sensValue.textContent = val.toFixed(1);
-                gameData.settings.sensitivity = val;
-                saveData(gameData);
-            });
+            if (sensSlider) {
+                sensSlider.addEventListener('input', function() {
+                    const val = parseFloat(this.value);
+                    sensValue.textContent = val.toFixed(1);
+                    gameData.settings.sensitivity = val;
+                    saveData(gameData);
+                });
+            }
 
             // 音量
             const volSlider = document.getElementById('volumeSlider');
             const volValue = document.getElementById('volumeValue');
-            volSlider.addEventListener('input', function() {
-                const val = parseInt(this.value);
-                volValue.textContent = val + '%';
-                gameData.settings.volume = val;
-                saveData(gameData);
-            });
+            if (volSlider) {
+                volSlider.addEventListener('input', function() {
+                    const val = parseInt(this.value);
+                    volValue.textContent = val + '%';
+                    gameData.settings.volume = val;
+                    saveData(gameData);
+                });
+            }
+
+            // 自动射击解锁
+            const unlockBtn = document.getElementById('unlockAutoBtn');
+            if (unlockBtn) {
+                unlockBtn.addEventListener('click', async function() {
+                    if (gameData.diamond >= 6666) {
+                        const confirm = await showConfirm(
+                            '🤖 解锁自动射击',
+                            `确定要花费 <span class="highlight">6666 💎</span> 解锁「自动射击」功能吗？`
+                        );
+                        if (confirm) {
+                            gameData.diamond -= 6666;
+                            gameData.autoShootUnlocked = true;
+                            saveData(gameData);
+                            renderSettings();
+                            updateAllUI();
+                            await showAlert('✅ 解锁成功', '自动射击功能已解锁！');
+                        }
+                    }
+                });
+            }
+
+            // 重置进度
+            const resetBtn = document.getElementById('resetProgressBtn');
+            if (resetBtn) {
+                resetBtn.addEventListener('click', async function() {
+                    const confirm1 = await showConfirm(
+                        '⚠️ 重置确认',
+                        '确定要清除所有存档数据吗？此操作不可撤销！'
+                    );
+                    if (confirm1) {
+                        const confirm2 = await showConfirm(
+                            '⚠️ 二次确认',
+                            '再次确认：所有钻石、角色、最高波次、升级等级都将重置为初始状态。'
+                        );
+                        if (confirm2) {
+                            clearAllData();
+                            renderSettings();
+                            updateAllUI();
+                            await showAlert('✅ 已重置', '所有进度已重置为初始状态。');
+                        }
+                    }
+                });
+            }
         }
 
         // ---------- 规则面板 ----------
@@ -999,7 +1566,7 @@
                 </div>
                 <div class="rule-section">
                     <h4>💎 钻石与进度</h4>
-                    <p>击败怪物有概率掉落 <span class="highlight">钻石</span>，钻石用于解锁角色。游戏进度（升级等级、最高波次、钻石）自动保存在浏览器中。</p>
+                    <p>击败怪物有概率掉落 <span class="highlight">钻石</span>，钻石用于解锁角色和自动射击。游戏进度（升级等级、最高波次、钻石）自动保存在浏览器中。</p>
                 </div>
                 <div style="margin-top:12px; font-size:0.8rem; color:rgba(255,255,255,0.25); text-align:center; border-top:1px solid rgba(255,255,255,0.05); padding-top:10px;">
                     「永动机的归途是听凭风引」 · 风起之时，便是归途
@@ -1008,69 +1575,123 @@
             rulesContent.innerHTML = html;
         }
 
-        // ---------- 升级查看（示例） ----------
+        // ---------- 升级查看（含降级功能） ----------
         function renderUpgradePreview() {
-            const upgrades = [
-                { label: '⚔️ 攻击力', value: 'Lv.3 (25)' },
-                { label: '🏹 攻击速度', value: 'Lv.2 (冷却0.9s)' },
-                { label: '❤️ 生命上限', value: 'Lv.4 (50)' },
-                { label: '🌀 弹射次数', value: 'Lv.1 (2次)' },
-                { label: '💨 移动速度', value: 'Lv.2 (4.5px/帧)' },
-                { label: '💰 金币获取', value: 'Lv.3 (+3)' },
-                { label: '💚 自然恢复速度', value: 'Lv.1 (0.8/秒)' },
-                { label: '🌟 元素精通', value: 'Lv.2 (+24%)' },
-                { label: '⚡ 元素充能', value: 'Lv.2 (+20%)' },
-                { label: '🌀 技能等级', value: 'Lv.1 (强化1.8倍)' },
-                { label: '🐌 怪物移速降低', value: 'Lv.1 (95%)' }
+            const data = gameData;
+            // 计算各项数值（与游戏内保持一致）
+            const attack = 10 + (data.attackLevel - 1) * 5;
+            const cooldown = Math.max(1, Math.round(60 * Math.pow(0.9, data.attackSpeedLevel - 1)));
+            const chargeTime = Math.max(1, Math.round(120 * Math.pow(0.9, data.attackSpeedLevel - 1)));
+            const maxLives = 10 + (data.healthLevel - 1) * 5;
+            const bounce = data.bounceLevel;
+            const moveSpeed = 3 + (data.moveSpeedLevel - 1) * 0.5;
+            const goldBonus = (data.goldLevel - 1) * 1;
+            const elemMastery = 1 + data.elementMasteryLevel * 0.12;
+            const energyRecharge = 1 + data.energyRechargeLevel * 0.10;
+            const skillMult = data.skillLevel === 0 ? 0 : (2 + (data.skillLevel - 1) * 0.4);
+            const skillRadius = data.skillLevel === 0 ? 0 : (250 + (data.skillLevel - 1) * 15);
+            const skillDamage = data.skillLevel === 0 ? 0 : Math.floor(attack * 0.6 * (1 + (data.skillLevel - 1) * 0.08));
+            const monsterSpeed = Math.pow(0.95, data.monsterSpeedLevel);
+            const regenInterval = Math.max(5, 30 * Math.pow(0.9, data.healthRegenLevel));
+
+            // 定义升级项：key, 标签, 当前等级, 初始等级, 显示值
+            const upgradeItems = [
+                { key: 'attackLevel', label: '⚔️ 攻击力', level: data.attackLevel, base: 1,
+                value: `${attack}` },
+                { key: 'attackSpeedLevel', label: '🏹 攻击速度', level: data.attackSpeedLevel, base: 1,
+                value: `冷却${(cooldown/60).toFixed(2)}s / 蓄力${(chargeTime/60).toFixed(2)}s` },
+                { key: 'healthLevel', label: '❤️ 生命上限', level: data.healthLevel, base: 1, value: `${maxLives}` },
+                { key: 'bounceLevel', label: '🌀 弹射次数', level: data.bounceLevel, base: 0, value: `${bounce}次` },
+                { key: 'moveSpeedLevel', label: '💨 移动速度', level: data.moveSpeedLevel, base: 1,
+                value: `${moveSpeed.toFixed(1)}px/帧` },
+                { key: 'goldLevel', label: '💰 金币获取', level: data.goldLevel, base: 1, value: `+${goldBonus} 每击杀` },
+                { key: 'healthRegenLevel', label: '💚 自然恢复速度', level: data.healthRegenLevel, base: 0,
+                value: `每${regenInterval.toFixed(1)}秒+1血` },
+                { key: 'elementMasteryLevel', label: '🌟 元素精通', level: data.elementMasteryLevel, base: 0,
+                value: `加成${((elemMastery-1)*100).toFixed(0)}%` },
+                { key: 'energyRechargeLevel', label: '⚡ 元素充能', level: data.energyRechargeLevel, base: 0,
+                value: `加成${((energyRecharge-1)*100).toFixed(0)}%` },
+                { key: 'skillLevel', label: '🌀 技能等级', level: data.skillLevel, base: 0,
+                value: data.skillLevel === 0 ? '未解锁' :
+                    `强化${skillMult.toFixed(1)}倍, 范围${skillRadius}, 伤害${Math.floor(skillDamage)}` },
+                { key: 'monsterSpeedLevel', label: '🐌 怪物移速降低', level: data.monsterSpeedLevel, base: 0,
+                value: `速度 ${(monsterSpeed*100).toFixed(0)}%` }
             ];
+
             let html = '';
-            for (const item of upgrades) {
+            for (const item of upgradeItems) {
+                const canDowngrade = item.level > item.base;
+                const diamondReturn = item.level; // 降级获得钻石 = 原等级
                 html += `
                     <div class="upgrade-item">
                         <span class="label">${item.label}</span>
-                        <span class="value">${item.value}</span>
+                        <span class="value">Lv.${item.level} (${item.value})</span>
+                        <button class="downgrade-btn" data-key="${item.key}" data-level="${item.level}" ${canDowngrade ? '' : 'disabled'}>
+                            ⬇️ 降级 ${canDowngrade ? `(+${diamondReturn}💎)` : ''}
+                        </button>
                     </div>
                 `;
             }
             upgradeContent.innerHTML = html;
-        }
 
-        // ---------- 钻石显示更新 ----------
-        function updateDiamondDisplay() {
-            // 在角色面板中更新
-            if (charDiamondDisplay) {
-                charDiamondDisplay.textContent = gameData.diamonds;
-            }
+            // 绑定降级事件
+            document.querySelectorAll('.downgrade-btn:not([disabled])').forEach(btn => {
+                btn.addEventListener('click', async function() {
+                    const key = this.dataset.key;
+                    const currentLevel = parseInt(this.dataset.level);
+                    const returnDiamonds = currentLevel; // 等于原等级
+                    const itemLabel = this.closest('.upgrade-item').querySelector('.label').textContent;
+
+                    const confirm = await showConfirm(
+                        '⬇️ 降级确认',
+                        `确定要将「${itemLabel}」从 <span class="highlight">Lv.${currentLevel}</span> 降级至 <span class="highlight">Lv.${currentLevel - 1}</span> 吗？<br>将获得 <span class="highlight">${returnDiamonds} 💎</span> 钻石。`
+                    );
+                    if (confirm) {
+                        // 执行降级
+                        gameData[key] = currentLevel - 1;
+                        gameData.diamond += returnDiamonds;
+                        saveData(gameData);
+                        renderUpgradePreview();
+                        updateAllUI();
+                        await showAlert('✅ 降级成功', `已降级至 Lv.${currentLevel - 1}，获得 ${returnDiamonds} 钻石。`);
+                    }
+                });
+            });
         }
 
         // ---------- 开始游戏逻辑 ----------
         function startGame(wave) {
-            // 这里将开始游戏，传递起始波次
-            // 实际游戏中，会隐藏首页，显示游戏画布，并初始化第 wave 波
-            alert(`🌊 从第 ${wave} 波开始游戏！\n（实际游戏中将跳转至游戏主界面）`);
-            // 示例：传递数据给游戏引擎
-            console.log(`Starting game at wave ${wave} with character ${gameData.currentChar}`);
-            // 可以在这里触发自定义事件或调用全局函数
-            // window.dispatchEvent(new CustomEvent('gameStart', { detail: { wave, character: gameData.currentChar } }));
+            const startData = {
+                startWave: wave,
+                character: gameData.currentChar,
+                autoShoot: gameData.autoShootUnlocked,
+                settings: gameData.settings
+            };
+            localStorage.setItem('kaeyaGameStartData', JSON.stringify(startData));
+            window.location.href = 'game.html';
         }
 
-        // ---------- 模态框控制 ----------
+        // ---------- 模态框控制（含滚动锁定） ----------
         function openModal(modal) {
             modal.classList.add('show');
+            document.body.style.overflow = 'hidden';
         }
 
         function closeModal(modal) {
             modal.classList.remove('show');
+            // 检查是否还有其他模态框打开，若无则恢复滚动
+            const anyOpen = document.querySelector('.modal-overlay.show');
+            if (!anyOpen) {
+                document.body.style.overflow = '';
+            }
         }
 
         // ---------- 事件绑定 ----------
-        // 开始游戏 -> 打开波次选择
         homeStartBtn.addEventListener('click', function() {
             renderWaveModal();
             openModal(waveModal);
         });
 
-        // 角色更换
         homeCharacterBtn.addEventListener('click', function() {
             renderCharacterPanel();
             openModal(characterModal);
@@ -1082,7 +1703,6 @@
             if (e.target === this) closeModal(characterModal);
         });
 
-        // 波次选择
         waveCloseBtn.addEventListener('click', function() {
             closeModal(waveModal);
         });
@@ -1090,7 +1710,6 @@
             if (e.target === this) closeModal(waveModal);
         });
 
-        // 游戏规则
         homeRulesBtn.addEventListener('click', function() {
             renderRules();
             openModal(rulesModal);
@@ -1102,7 +1721,6 @@
             if (e.target === this) closeModal(rulesModal);
         });
 
-        // 升级查看
         homeUpgradeBtn.addEventListener('click', function() {
             renderUpgradePreview();
             openModal(upgradeModal);
@@ -1114,7 +1732,6 @@
             if (e.target === this) closeModal(upgradeModal);
         });
 
-        // 游戏设置
         homeSettingsBtn.addEventListener('click', function() {
             renderSettings();
             openModal(settingsModal);
@@ -1126,7 +1743,7 @@
             if (e.target === this) closeModal(settingsModal);
         });
 
-        // 键盘快捷键：ESC关闭所有模态框
+        // 键盘 ESC 关闭所有模态框（包括自定义弹窗）
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 const modals = [characterModal, waveModal, rulesModal, upgradeModal, settingsModal];
@@ -1135,16 +1752,30 @@
                         closeModal(modal);
                     }
                 }
+                // 自定义弹窗
+                if (confirmModal.classList.contains('show')) {
+                    confirmCancel.click();
+                }
+                if (alertModal.classList.contains('show')) {
+                    alertOkBtn.click();
+                }
             }
         });
 
         // ---------- 初始化 ----------
-        console.log('🍁 永动机的归途是听凭风引 · 功能型首页已加载');
+        updateAllUI(); // 初始渲染所有 UI
+
+        console.log('🍁 永动机的归途是听凭风引 · 首页优化版已加载');
         console.log('📌 角色图片命名要求:');
         console.log('   - 永动机: assets/turret_eternal.png');
         console.log('   - 烈阳哥: assets/turret_sunny.png');
         console.log('   - 黑色潮水: assets/turret_darktide.png');
         console.log('📊 当前游戏数据:', gameData);
+        console.log('🏆 最高积分:', highScore);
+        console.log('🚀 点击「开始游戏」将跳转到 game.html，并携带起始波次、角色、自动射击状态。');
+        console.log('💎 全局钻石显示在右上角，任意界面可见。');
+        console.log('🎴 角色更换面板底部有「抽卡」按钮，跳转到 wish.html。');
+        console.log('⬇️ 升级查看面板中，每个可降级项都有降级按钮，返还钻石等于原等级。');
     </script>
 </body>
 </html>
