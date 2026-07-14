@@ -29,13 +29,12 @@
         #topUI .stat .num.high { color: #fd79a8; }
         #topUI .stat .num.energy { color: #00d2d3; }
         #topUI .stat .num.diamond { color: #00d2d3; }
-        #topUI .stat .coin-icon {
-            width: 16px; height: 16px; display: inline-block;
+        #topUI .stat .icon-img {
+            width: 18px; height: 18px; display: inline-block;
             background-size: contain; background-repeat: no-repeat;
-            background-image: url('assets/coin_icon.png');
-            background-position: center;
+            background-position: center; vertical-align: middle;
         }
-        #topUI .stat .coin-icon.fallback { background-image: none; }
+        #topUI .stat .icon-img.fallback { background-image: none; }
         #topUI .btn-group { display: flex; gap: 4px; margin-left: auto; flex-wrap: wrap; }
         #topUI .btn-group button { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #e8f0fe; padding: 1px 10px; border-radius: 16px; font-size: 12px; cursor: pointer; font-weight: 600; transition: 0.2s; font-family: inherit; pointer-events: auto; line-height: 1.6; }
         #topUI .btn-group button:hover { background: rgba(255,255,255,0.18); border-color: rgba(255,215,0,0.4); }
@@ -152,11 +151,14 @@
     <div id="topUI">
         <div class="stat"><span>🌊</span>波次 <span class="num wave" id="waveDisplay">1</span></div>
         <div class="stat">
-            <span class="coin-icon" id="coinIconTop"></span>
+            <span class="icon-img" id="coinIconTop" style="background-image:url('assets/coin_icon.png');"></span>
             <span class="num" id="goldDisplay">0</span>
         </div>
         <div class="stat"><span>❤️</span>生命 <span class="num life" id="lifeDisplay">10/30</span></div>
-        <div class="stat"><span>💎</span>钻石 <span class="num diamond" id="diamondDisplay">0</span></div>
+        <div class="stat">
+            <span class="icon-img" id="diamondIconTop" style="background-image:url('assets/diamond.png');"></span>
+            <span class="num diamond" id="diamondDisplay">0</span>
+        </div>
         <div class="stat"><span>💀</span>击杀 <span class="num kills" id="killsDisplay">0</span></div>
         <div class="stat"><span>🏅</span>积分 <span class="num score" id="scoreDisplay">0</span></div>
         <div class="stat"><span>🏆</span>最高 <span class="num high" id="highScoreDisplay">0</span></div>
@@ -206,8 +208,8 @@
 
     <script>
         // ================================================================
-        //  永动机的归途是听凭风引 · 最终稳定版（数值保护已加固）
-        //  修复：所有 createRadialGradient 参数均经过有限性检查
+        //  永动机的归途是听凭风引 · 最终稳定版
+        //  新增：来古士转阶段充能机制（能量充满，10秒限时）
         // ================================================================
 
         // ---------- 配置中心 ----------
@@ -250,6 +252,8 @@
                 bossExtraHpPerWave: 300,
                 eliteHpMultiplier: 2,
                 eliteSpeedMultiplier: 0.8,
+                bossSpeedMultiplier: 0.35,
+                lykourgosEmpowerDuration: 600, // 10秒 * 60帧
             },
             states: {
                 PLAYING: 'playing',
@@ -381,6 +385,8 @@
         const bossHealthFill = document.getElementById('bossHealthFill');
         const bossHealthLabel = document.getElementById('bossHealthLabel');
         const bossHpText = document.getElementById('bossHpText');
+        const coinIconTop = document.getElementById('coinIconTop');
+        const diamondIconTop = document.getElementById('diamondIconTop');
 
         // ---------- 高DPI缩放 ----------
         let dpr = window.devicePixelRatio || 1;
@@ -466,10 +472,11 @@
             eternal: 'assets/turret_eternal.png',
             sunny: 'assets/turret_sunny.png',
             dark_tide: 'assets/turret_darktide.png',
+            navigator: 'assets/turret_navigator.png',
         };
 
         const ASSET_PATHS = {
-            turret: CHARACTER_ASSETS[startData.character] || 'assets/turret.png',
+            turret: CHARACTER_ASSETS[startData.character] || 'assets/turret_eternal.png',
             bullet: {
                 fire: 'assets/fire_bullet.png',
                 ice: 'assets/ice_bullet.png',
@@ -541,7 +548,7 @@
             coinImg.src = ASSET_PATHS.coin;
             coinImg.onload = () => { ASSETS.coin = coinImg;
                 onLoad(); };
-            coinImg.onerror = () => { console.warn('金币图标加载失败，使用备用绘制');
+            coinImg.onerror = () => { console.warn('金币图片加载失败，使用备用绘制');
                 onLoad(); };
             const diamondImg = new Image();
             diamondImg.src = ASSET_PATHS.diamond;
@@ -629,6 +636,12 @@
             skillChargeTimer: 0,
             skillChargeMax: 600,
             skillReady: false,
+            // ====== 来古士转阶段充能机制 ======
+            lykourgosEmpowerActive: false,
+            lykourgosEmpowerTimer: 0,
+            lykourgosEmpowerOriginalEnergy: 0,
+            lykourgosEmpowerMaxTimer: CONFIG.balance.lykourgosEmpowerDuration,
+            lykourgosEmpowerTriggered: false,
         };
         window.game = game;
 
@@ -699,7 +712,6 @@
         }
 
         function addEnergy(baseAmount) {
-            // 新机制下由系统管理，保留兼容
             game.energy = Math.min(game.energy + baseAmount, game.maxEnergy);
             updateUI();
         }
@@ -946,6 +958,9 @@
                 monsters.push(boss);
                 spawnFloatingText(boss.x, boss.y - 30, '👑 BOSS登场！', '#ff4444', 32);
                 showBossHealthBar(boss);
+                // 重置来古士充能标记（新Boss重新计数）
+                game.lykourgosEmpowerTriggered = false;
+                game.lykourgosEmpowerActive = false;
             } else {
                 const eliteCount = getEliteCount(game.wave);
                 const eliteTypes = ['eroding', 'warlord', 'griffon'];
@@ -1095,7 +1110,7 @@
             }
         }
 
-        // ---------- 技能（新机制）----------
+        // ---------- 技能 ----------
         function castSkill() {
             if (game.isOver || game.paused || game.upgradeOpen || game.bestiaryOpen || game.settingsOpen) return;
             if (game.skillLevel < 1) {
@@ -1106,12 +1121,21 @@
                 spawnFloatingText(W / 2, H / 2 - 40, '⏳ 能量未就绪', '#ffd93d', 28);
                 return;
             }
+
+            // ====== 技能释放逻辑 ======
             game.lives -= 5;
             if (game.lives < 0) game.lives = 0;
             game.energy = 0;
             game.empoweredShot = true;
             game.skillReady = false;
             game.skillChargeTimer = 0;
+
+            // 清除来古士强化状态（如果处于该状态）
+            if (game.lykourgosEmpowerActive) {
+                game.lykourgosEmpowerActive = false;
+                spawnFloatingText(W / 2, H / 2 - 60, '⚡ 强化释放！', '#ffd700', 32);
+            }
+
             spawnFloatingText(W / 2, H / 2 - 60, `💔 -5 生命 · 能量释放`, '#ff6b6b', 34);
             spawnFloatingText(W / 2, H / 2 - 20, '🌀 强化弹已就绪！', '#00d2d3', 26);
             updateUI();
@@ -1293,30 +1317,7 @@
                         speedMul = aura.monsterSpeedBoost;
                     }
 
-                    // 移动逻辑
-                    if (m.type === 'slime') {
-                        m.moveTimer = (m.moveTimer || 0) + 1;
-                        if (m.moveTimer % 120 === 0) {
-                            m.moveAngle = rand(0, Math.PI * 2);
-                        }
-                        m.x += Math.cos(m.moveAngle) * m.speed * 0.2 * speedMul;
-                        m.y += m.speed * 0.8 * speedMul + Math.sin(m.moveAngle) * m.speed * 0.2 * speedMul;
-                        if (m.x < m.radius) { m.x = m.radius;
-                            m.moveAngle = -m.moveAngle; }
-                        if (m.x > W - m.radius) { m.x = W - m.radius;
-                            m.moveAngle = Math.PI - m.moveAngle; }
-                    } else if (m.type === 'bow') {
-                        m.moveTimer = (m.moveTimer || 0) + 1;
-                        if (m.moveTimer % 120 === 0) {
-                            m.moveAngle = rand(0, Math.PI * 2);
-                        }
-                        m.x += Math.cos(m.moveAngle) * m.speed * 0.2 * speedMul;
-                        m.y += m.speed * 0.8 * speedMul + Math.sin(m.moveAngle) * m.speed * 0.2 * speedMul;
-                        if (m.x < m.radius) { m.x = m.radius;
-                            m.moveAngle = -m.moveAngle; }
-                        if (m.x > W - m.radius) { m.x = W - m.radius;
-                            m.moveAngle = Math.PI - m.moveAngle; }
-                    } else if (m.isBoss) {
+                    if (m.isBoss) {
                         m.moveTimer = (m.moveTimer || 0) + 1;
                         if (m.moveTimer % 10 === 0) {
                             m.moveAngle += rand(-0.2, 0.2);
@@ -1345,14 +1346,12 @@
                     }
                 }
 
-                // 精英/Boss技能
                 if (m.isElite || m.isBoss) {
                     updateEliteAI(m);
                 } else {
                     updateNormalAI(m);
                 }
 
-                // 触底伤害
                 if (m.y + m.radius >= bottomLine) {
                     let dmg = 1;
                     if (m.isBoss) dmg = 5;
@@ -1367,7 +1366,6 @@
                     continue;
                 }
 
-                // 碰撞玩家
                 if (dist(m, { x: game.towerX, y: game.towerY }) < m.radius + 16) {
                     let dmg = 1;
                     if (m.isBoss) dmg = 5;
@@ -1457,11 +1455,14 @@
                 return;
             }
 
-            // 来古士
+            // =============================================================
+            //  ⚫ 来古士 - 包含转阶段充能机制
+            // =============================================================
             if (m.type === 'lykourgos') {
                 const hpRatio = m.hp / m.maxHp;
 
                 if (hpRatio > 0.5) {
+                    // ---- 白形态 ----
                     if (m.form !== 'white') {
                         m.form = 'white';
                         spawnFloatingText(m.x, m.y - 40, '⚪ 白形态', '#ffffff', 28);
@@ -1476,12 +1477,35 @@
                         spawnFloatingText(m.x, m.y - 20, '🪄 召唤弓箭手', '#88ff88', 20);
                     }
                 } else {
+                    // ---- 黑形态（转阶段触发充能） ----
                     if (m.form !== 'black') {
                         m.form = 'black';
                         spawnFloatingText(m.x, m.y - 40, '⚫ 黑形态', '#000000', 28);
                         m.timer = 0;
                         m._shadowTimer = 30;
+
+                        // ====== 🎯 来古士转阶段 · 玩家充能 ======
+                        if (!game.lykourgosEmpowerTriggered && !game.isOver && !game.paused) {
+                            game.lykourgosEmpowerTriggered = true;
+                            game.lykourgosEmpowerOriginalEnergy = game.energy;
+                            game.energy = game.maxEnergy;
+                            game.skillReady = true;
+                            game.skillChargeTimer = 0;
+                            game.lykourgosEmpowerActive = true;
+                            game.lykourgosEmpowerTimer = 0;
+
+                            spawnFloatingText(W / 2, H / 2 - 80, '⚡ 来古士能量灌注！', '#ffd700', 40);
+                            spawnFloatingText(W / 2, H / 2 - 40, '⏳ 10秒内释放技能（扣5血）', '#ffd93d', 28);
+                            toast = {
+                                text: '⚡ 充能！10秒内开大',
+                                timer: 0,
+                                maxTimer: 120,
+                                alpha: 1
+                            };
+                        }
                     }
+
+                    // ---- 黑形态技能 ----
                     if (m.timer % 180 === 0) {
                         const angle = angleTo(m, { x: game.towerX, y: game.towerY });
                         const speed = 3.5;
@@ -1523,7 +1547,7 @@
                 return;
             }
 
-            // 多托雷本体
+            // ---------- 多托雷本体 ----------
             if (m.type === 'dottore' && !m.isClone) {
                 m.cloneTimer = (m.cloneTimer || 0) - 1;
                 if (m.cloneTimer <= 0 && m.clones.length < 3) {
@@ -1586,7 +1610,7 @@
                 return;
             }
 
-            // 多托雷分身（激光正常触发）
+            // ---------- 多托雷分身 ----------
             if (m.type === 'dottore' && m.isClone) {
                 if (m.laserTimer === undefined) m.laserTimer = 0;
                 m.laserTimer--;
@@ -1636,7 +1660,7 @@
                 return;
             }
 
-            // 其他精英
+            // ---------- 其他精英 ----------
             if (m.type === 'warlord') {
                 m.buffTimer--;
                 if (m.buffTimer <= 0) {
@@ -1738,6 +1762,10 @@
             m.isDead = true;
             if (m.isBoss) {
                 hideBossHealthBar();
+                // Boss死亡时清除充能状态
+                if (m.type === 'lykourgos') {
+                    game.lykourgosEmpowerActive = false;
+                }
             }
             if (m.type === 'axe') {
                 explodeAxe(m);
@@ -2166,6 +2194,8 @@
                 game.waveCooldown = 180;
                 spawnFloatingText(W / 2, 50, `🌊 第 ${game.wave - 1} 波完成！`, '#a29bfe', 22);
                 hideBossHealthBar();
+                // 清除充能状态
+                game.lykourgosEmpowerActive = false;
                 updateUI();
             }
         }
@@ -2182,6 +2212,20 @@
             if (game.lives > game.maxLives) game.lives = game.maxLives;
 
             updateSkillCharge();
+
+            // ====== 来古士强化状态计时器 ======
+            if (game.lykourgosEmpowerActive) {
+                game.lykourgosEmpowerTimer++;
+                if (game.lykourgosEmpowerTimer >= game.lykourgosEmpowerMaxTimer) {
+                    // 10秒到期，恢复能量
+                    game.energy = game.lykourgosEmpowerOriginalEnergy;
+                    game.lykourgosEmpowerActive = false;
+                    if (game.energy < game.maxEnergy) {
+                        game.skillReady = false;
+                    }
+                    spawnFloatingText(W / 2, H / 2 - 40, '⏳ 能量已恢复', '#ffd93d', 28);
+                }
+            }
 
             if (game.cooldownTimer > 0) game.cooldownTimer--;
             if (game.isCharging && game.cooldownTimer === 0) {
@@ -2293,7 +2337,7 @@
             }
         }
 
-        // ---------- 渲染（所有 createRadialGradient 已加固）----------
+        // ---------- 渲染 ----------
         function drawMonster(m) {
             if (!m || m.isDead) return;
             if (!isFinite(m.x) || !isFinite(m.y) || !isFinite(m.radius) || m.radius <= 0) return;
@@ -2647,6 +2691,7 @@
                 }
             }
 
+            // 金币掉落
             for (const d of goldDrops) {
                 if (!d || !isFinite(d.x) || !isFinite(d.y)) continue;
                 const bobY = Math.sin(d.bob) * 3;
@@ -2676,6 +2721,7 @@
                 ctx.shadowBlur = 0;
             }
 
+            // 钻石掉落
             for (const d of diamondDrops) {
                 if (!d || !isFinite(d.x) || !isFinite(d.y)) continue;
                 const bobY = Math.sin(d.bob) * 3;
@@ -2706,6 +2752,7 @@
                 ctx.shadowBlur = 0;
             }
 
+            // 血包掉落
             for (const d of healthPacks) {
                 if (!d || !isFinite(d.x) || !isFinite(d.y)) continue;
                 const bobY = Math.sin(d.bob) * 3;
@@ -2728,6 +2775,7 @@
                 });
             }
 
+            // 激光特效
             for (const eff of game.laserEffects) {
                 if (!eff || !isFinite(eff.x) || !isFinite(eff.y)) continue;
                 if (eff.phase === 'charging') {
@@ -2781,11 +2829,13 @@
                 }
             }
 
+            // 怪物
             for (const m of monsters) {
                 if (m.isDead) continue;
                 drawMonster(m);
             }
 
+            // 玩家子弹
             for (const b of bullets) {
                 if (b.isDead) continue;
                 if (!isFinite(b.x) || !isFinite(b.y) || !isFinite(b.radius) || b.radius <= 0) continue;
@@ -2854,6 +2904,7 @@
                 }
             }
 
+            // 炮塔
             const tx = game.towerX,
                 ty = game.towerY;
             const angle = angleTo({ x: tx, y: ty }, { x: game.mouseX, y: game.mouseY });
@@ -3037,6 +3088,20 @@
             ctx.shadowBlur = 0;
             ctx.restore();
 
+            // 来古士强化状态提示（倒计时显示在技能按钮上方）
+            if (game.lykourgosEmpowerActive) {
+                const remain = Math.max(0, Math.ceil((game.lykourgosEmpowerMaxTimer - game.lykourgosEmpowerTimer) / 60));
+                ctx.save();
+                ctx.font = 'bold 14px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'bottom';
+                ctx.fillStyle = '#ffd700';
+                ctx.shadowColor = 'rgba(0,0,0,0.8)';
+                ctx.shadowBlur = 8;
+                ctx.fillText(`⚡ 强化剩余 ${remain}s`, skillBtnX, skillBtnY - skillRadius - 12);
+                ctx.restore();
+            }
+
             for (const p of particles) {
                 if (!p || !isFinite(p.x) || !isFinite(p.y)) continue;
                 const alpha = p.life / p.maxLife;
@@ -3207,16 +3272,6 @@
             energyDisplay.textContent = `${Math.floor(game.energy)}/${game.maxEnergy}`;
             diamondDisplay.textContent = GlobalProgress.diamond;
             updateModalGold();
-
-            const coinIconTop = document.getElementById('coinIconTop');
-            if (ASSETS.coin && ASSETS.coin.complete && ASSETS.coin.naturalWidth > 0) {
-                coinIconTop.className = 'coin-icon';
-                coinIconTop.style.backgroundImage = `url('assets/coin_icon.png')`;
-            } else {
-                coinIconTop.className = 'coin-icon fallback';
-                coinIconTop.style.backgroundImage = 'none';
-                coinIconTop.textContent = '🪙';
-            }
         }
 
         function updateModalGold() {
@@ -3450,7 +3505,7 @@
             html += `<div class="bestiary-entry"><span class="name">🟡 黑日狮鹫</span><span class="desc">每10秒召唤一只 <strong style="color:#f39c12;">黑潮朽弓</strong>，同时发射 <strong style="color:#ffaa44;">扇形弹幕</strong>（3颗，伤害1）。血量20+，移速0.8倍。<br><span style="color:#aaa;font-size:12px;">→ 注意躲避弹幕，及时清理召唤物。</span></span></div>`;
 
             html += `<h3 style="color:#ff6b6b; margin-top:16px; border-bottom:1px solid rgba(255,107,107,0.3); padding-bottom:4px;">👑 Boss 怪物 <span style="font-size:13px; color:#aaa;">(每10波)</span></h3>`;
-            html += `<div class="bestiary-entry"><span class="name">⚫ 来古士</span><span class="desc"><strong style="color:#ffffff;">白形态</strong>（血量 > 50%）：每4秒召唤 <strong style="color:#f39c12;">弓箭手</strong>。<br><strong style="color:#000000;background:#888;padding:0 4px;">黑形态</strong>（血量 ≤ 50%）：发射 <strong style="color:#8e44ad;">暗影波</strong>（伤害 <strong style="color:#ff6b6b;">4</strong>）并召唤 <strong style="color:#8e44ad;">暗影球</strong>（触碰扣 <strong style="color:#ff6b6b;">3</strong>，持续6秒）。<br><strong style="color:#ff6b6b;">狂暴</strong>（血量 < 30%）：移速提升20%。<br><span style="color:#aaa;font-size:12px;">→ 白形态清召唤物，黑形态注意走位躲避暗影波和暗影球。</span></span></div>`;
+            html += `<div class="bestiary-entry"><span class="name">⚫ 来古士</span><span class="desc"><strong style="color:#ffffff;">白形态</strong>（血量 > 50%）：每4秒召唤 <strong style="color:#f39c12;">弓箭手</strong>。<br><strong style="color:#000000;background:#888;padding:0 4px;">黑形态</strong>（血量 ≤ 50%）：发射 <strong style="color:#8e44ad;">暗影波</strong>（伤害 <strong style="color:#ff6b6b;">4</strong>）并召唤 <strong style="color:#8e44ad;">暗影球</strong>（触碰扣 <strong style="color:#ff6b6b;">3</strong>，持续6秒）。<br><strong style="color:#ff6b6b;">狂暴</strong>（血量 < 30%）：移速提升20%。<br><span style="color:#aaa;font-size:12px;">→ 白形态清召唤物，黑形态注意走位躲避暗影波和暗影球。</span><br><span style="color:#ffd700;font-size:12px;">⚡ 转阶段充能：来古士转入黑形态时，玩家能量瞬间回满，10秒内释放技能可触发强化弹，超时则能量恢复。</span></span></div>`;
             html += `<div class="bestiary-entry"><span class="name">🧪 多托雷</span><span class="desc">每8秒召唤一个 <strong style="color:#aa88ff;">分身</strong>（血量为本体一半，可使用 <strong style="color:#ff6666;">激光</strong>，伤害 <strong style="color:#ff6b6b;">1</strong>）。<br>本体蓄力0.8秒后发射 <strong style="color:#ff0000;">激光</strong>（伤害 <strong style="color:#ff6b6b;">3</strong>，有预警红线）。<br><span style="color:#aaa;font-size:12px;">→ 看到红线立即横向闪避，优先清理分身减少激光压力。</span></span></div>`;
 
             html += `<h3 style="color:#74b9ff; margin-top:16px; border-bottom:1px solid rgba(116,185,255,0.3); padding-bottom:4px;">⚡ 元素反应 <span style="font-size:13px; color:#aaa;">(当前元素精通加成：<strong style="color:#ffd93d;">${((mastery-1)*100).toFixed(0)}%</strong>)</span></h3>`;
@@ -3659,6 +3714,8 @@
                         game._regenAccum = 0;
                         game.skillChargeTimer = 0;
                         game.skillReady = false;
+                        game.lykourgosEmpowerActive = false;
+                        game.lykourgosEmpowerTriggered = false;
                         hideBossHealthBar();
                         gameOverlay.classList.remove('show');
                         updateUI();
@@ -3690,7 +3747,7 @@
         }
 
         // =============================================================
-        //  状态管理（已修复递归）
+        //  状态管理
         // =============================================================
         function setGameState(newState) {
             if (game._state === newState) return;
@@ -3799,6 +3856,7 @@
             if (game.bestiaryOpen) closeBestiary();
             if (game.settingsOpen) closeSettings();
             hideBossHealthBar();
+            game.lykourgosEmpowerActive = false;
             updateUI();
         }
 
@@ -3848,7 +3906,10 @@
             game._state = 'playing';
             game.skillChargeTimer = 0;
             game.skillReady = false;
-            game.lives = game.maxLives; // 回满
+            game.lives = game.maxLives;
+            game.lykourgosEmpowerActive = false;
+            game.lykourgosEmpowerTriggered = false;
+            game.lykourgosEmpowerTimer = 0;
             initBulletQueue();
             game.laserEffects = [];
             goldDrops = [];
@@ -3881,8 +3942,6 @@
             e.preventDefault();
             const touch = e.changedTouches[0];
             const pos = toLogic(touch.clientX, touch.clientY);
-            const joyLogicX = pos.x;
-            const joyLogicY = pos.y;
             const skillLogicX = W - 80, skillLogicY = H - 80;
 
             if (dist(pos, { x: skillLogicX, y: skillLogicY }) < 60) {
@@ -3893,8 +3952,8 @@
 
             game.joystick.active = true;
             game.joystick.touchId = touch.identifier;
-            game.joystick.startX = clamp(joyLogicX, 100, W - 100);
-            game.joystick.startY = clamp(joyLogicY, 100, H - 100);
+            game.joystick.startX = clamp(pos.x, 100, W - 100);
+            game.joystick.startY = clamp(pos.y, 100, H - 100);
             updateJoystick(touch);
 
             game.mouseX = pos.x;
@@ -4050,6 +4109,8 @@
             game.energy = game.maxEnergy;
             game.skillReady = true;
             game.skillChargeTimer = 0;
+            game.lykourgosEmpowerActive = false;
+            game.lykourgosEmpowerTriggered = false;
             updateUI();
             game.waveCooldown = 0;
             startWave();
@@ -4064,11 +4125,11 @@
             requestAnimationFrame(gameLoop);
         }
 
-        console.log('🍁 永动机的归途是听凭风引 · 最终稳定版（数值加固）');
+        console.log('🍁 永动机的归途是听凭风引 · 最终稳定版（来古士充能机制）');
         console.log(`📌 起始波次: ${startData.startWave}, 角色: ${startData.character}, 自动射击: ${startData.autoShoot}`);
         console.log('⌨️  ESC/P 暂停 | 空格技能 | U 升级');
         console.log('💎 积分转为钻石，结算返回主页');
-        console.log('✅ 所有 createRadialGradient 参数均经过有限性检查，不会再崩溃。');
+        console.log('⚡ 来古士转阶段时，玩家能量会瞬间回满，10秒内释放技能可触发强化弹。');
     </script>
 </body>
 </html>

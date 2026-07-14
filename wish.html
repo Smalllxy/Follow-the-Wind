@@ -1,0 +1,1423 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>抽卡 · 听凭风引</title>
+    <style>
+        /* ========== 全局重置 ========== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-touch-callout: none;
+        }
+        html,
+        body {
+            width: 100%;
+            min-height: 100vh;
+            background: radial-gradient(ellipse at 50% 30%, #1f1a16, #0a0807);
+            font-family: 'Segoe UI', 'PingFang SC', Roboto, sans-serif;
+            color: #e8f0fe;
+            overflow-x: hidden;
+        }
+
+        /* ========== 枫叶背景 ========== */
+        #wishLeaves {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 0;
+        }
+        .wish-leaf {
+            position: absolute;
+            font-size: 24px;
+            opacity: 0.12;
+            animation: leafFloat linear infinite;
+            will-change: transform;
+            pointer-events: none;
+        }
+        @keyframes leafFloat {
+            0% {
+                transform: translateY(-10vh) rotate(0deg) scale(0.7);
+                opacity: 0.08;
+            }
+            20% {
+                opacity: 0.2;
+            }
+            80% {
+                opacity: 0.15;
+            }
+            100% {
+                transform: translateY(110vh) rotate(720deg) scale(1.1);
+                opacity: 0.02;
+            }
+        }
+
+        /* ========== 主容器 ========== */
+        #app {
+            position: relative;
+            z-index: 1;
+            max-width: 880px;
+            margin: 0 auto;
+            padding: 18px 16px 30px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ========== 顶部栏 ========== */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 10px 4px 14px;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.08);
+            margin-bottom: 16px;
+        }
+        .header .left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .header .back-btn {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: #c8d0e0;
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: 0.25s;
+            font-family: inherit;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .header .back-btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 215, 0, 0.25);
+            color: #fff;
+        }
+        .header .title {
+            font-size: clamp(1.2rem, 3.5vw, 2rem);
+            font-weight: 800;
+            background: linear-gradient(135deg, #f9ca24, #f1c40f, #e67e22);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 0.06em;
+        }
+        .header .title .sub {
+            font-size: 0.5em;
+            opacity: 0.5;
+            -webkit-text-fill-color: rgba(255, 255, 255, 0.3);
+            font-weight: 300;
+        }
+        .header .diamond-display {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 215, 0, 0.08);
+            border: 1px solid rgba(255, 215, 0, 0.12);
+            padding: 6px 18px 6px 14px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 1.05rem;
+            color: #ffd93d;
+            white-space: nowrap;
+        }
+        .header .diamond-display .diamond-icon {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            background: url('assets/diamond.png') no-repeat center/contain;
+            font-size: 0;
+            vertical-align: middle;
+        }
+
+        /* ========== 展示区 ========== */
+        .showcase {
+            flex: 1;
+            min-height: 200px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            padding: 20px 16px;
+            margin-bottom: 18px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        .showcase .empty-state {
+            color: rgba(255, 255, 255, 0.15);
+            font-size: 0.95rem;
+            letter-spacing: 0.1em;
+            text-align: center;
+            line-height: 1.8;
+        }
+        .showcase .empty-state .big-icon {
+            font-size: 3.6rem;
+            display: block;
+            margin-bottom: 8px;
+            opacity: 0.4;
+        }
+
+        /* 展示卡片网格 */
+        .result-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+            width: 100%;
+            animation: fadeInUp 0.5s ease;
+        }
+        .result-grid .card-item {
+            width: calc(20% - 12px);
+            min-width: 72px;
+            max-width: 130px;
+            aspect-ratio: 3/4;
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.06);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 4px;
+            transition: 0.3s;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+            gap: 2px;
+        }
+        .result-grid .card-item .card-icon {
+            font-size: 2.4rem;
+            line-height: 1.2;
+            margin-bottom: 2px;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .result-grid .card-item .card-icon img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+        .result-grid .card-item .card-name {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #e8f0fe;
+            line-height: 1.2;
+            word-break: break-all;
+            max-width: 100%;
+        }
+        .result-grid .card-item .card-rarity {
+            font-size: 0.55rem;
+            padding: 1px 8px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.06);
+            letter-spacing: 0.04em;
+            margin-top: 2px;
+        }
+        /* 稀有度颜色映射 */
+        .result-grid .card-item.rarity-common {
+            border-color: rgba(52, 152, 219, 0.3);
+            background: rgba(52, 152, 219, 0.05);
+        }
+        .result-grid .card-item.rarity-common .card-rarity {
+            color: #5dade2;
+        }
+        .result-grid .card-item.rarity-rare {
+            border-color: rgba(46, 204, 113, 0.4);
+            background: rgba(46, 204, 113, 0.06);
+        }
+        .result-grid .card-item.rarity-rare .card-rarity {
+            color: #58d68d;
+        }
+        .result-grid .card-item.rarity-epic {
+            border-color: rgba(155, 89, 182, 0.5);
+            background: rgba(155, 89, 182, 0.07);
+        }
+        .result-grid .card-item.rarity-epic .card-rarity {
+            color: #af7ac5;
+        }
+        .result-grid .card-item.rarity-legendary {
+            border-color: rgba(241, 196, 15, 0.6);
+            background: rgba(241, 196, 15, 0.08);
+            box-shadow: 0 0 30px rgba(241, 196, 15, 0.1);
+        }
+        .result-grid .card-item.rarity-legendary .card-rarity {
+            color: #f1c40f;
+        }
+        .result-grid .card-item.rarity-divine {
+            border-color: rgba(231, 76, 60, 0.7);
+            background: rgba(231, 76, 60, 0.1);
+            box-shadow: 0 0 50px rgba(231, 76, 60, 0.2);
+            animation: divineGlow 1.8s ease-in-out infinite;
+        }
+        .result-grid .card-item.rarity-divine .card-rarity {
+            color: #ff6b6b;
+        }
+        @keyframes divineGlow {
+            0%,
+            100% {
+                box-shadow: 0 0 30px rgba(231, 76, 60, 0.15);
+            }
+            50% {
+                box-shadow: 0 0 80px rgba(231, 76, 60, 0.35);
+            }
+        }
+
+        /* 单抽大卡片 */
+        .result-grid.single .card-item {
+            width: 180px;
+            max-width: 220px;
+            aspect-ratio: 3/4;
+            padding: 16px 12px;
+        }
+        .result-grid.single .card-item .card-icon {
+            font-size: 4rem;
+            width: 80px;
+            height: 80px;
+        }
+        .result-grid.single .card-item .card-icon img {
+            width: 80px;
+            height: 80px;
+        }
+        .result-grid.single .card-item .card-name {
+            font-size: 1rem;
+        }
+        .result-grid.single .card-item .card-rarity {
+            font-size: 0.7rem;
+        }
+
+        /* ========== 操作按钮 ========== */
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            padding: 6px 0 4px;
+        }
+        .actions .btn {
+            flex: 1;
+            min-width: 140px;
+            max-width: 280px;
+            padding: 14px 18px;
+            border-radius: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.04);
+            color: #e8f0fe;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        .actions .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.05), transparent);
+            transition: left 0.6s ease;
+        }
+        .actions .btn:hover:not(:disabled)::before {
+            left: 100%;
+        }
+        .actions .btn:hover:not(:disabled) {
+            transform: translateY(-2px) scale(1.01);
+            border-color: rgba(255, 215, 0, 0.25);
+        }
+        .actions .btn:active:not(:disabled) {
+            transform: scale(0.97);
+        }
+        .actions .btn:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+            transform: none !important;
+            filter: grayscale(0.4);
+        }
+        .actions .btn.primary {
+            background: rgba(255, 215, 0, 0.12);
+            border-color: rgba(255, 215, 0, 0.2);
+        }
+        .actions .btn.primary:hover:not(:disabled) {
+            background: rgba(255, 215, 0, 0.22);
+            border-color: rgba(255, 215, 0, 0.4);
+            box-shadow: 0 8px 40px rgba(255, 215, 0, 0.08);
+        }
+        .actions .btn .cost {
+            font-weight: 400;
+            font-size: 0.8rem;
+            opacity: 0.6;
+        }
+        .actions .btn .badge {
+            font-size: 0.7rem;
+            background: rgba(255, 215, 0, 0.15);
+            padding: 1px 10px;
+            border-radius: 20px;
+            color: #ffd93d;
+            font-weight: 600;
+        }
+
+        /* ========== 抽卡结果覆盖层 ========== */
+        #resultOverlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.82);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            z-index: 99999;
+            justify-content: center;
+            align-items: center;
+            animation: overlayFade 0.4s ease;
+            padding: 20px;
+        }
+        #resultOverlay.show {
+            display: flex;
+        }
+        @keyframes overlayFade {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .result-panel {
+            background: rgba(20, 25, 35, 0.9);
+            border-radius: 32px;
+            padding: 24px 22px 28px;
+            max-width: 780px;
+            width: 100%;
+            max-height: 92vh;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 215, 0, 0.08);
+            box-shadow: 0 40px 120px rgba(0, 0, 0, 0.7);
+            position: relative;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 215, 0, 0.15) transparent;
+        }
+        .result-panel::-webkit-scrollbar {
+            width: 4px;
+        }
+        .result-panel::-webkit-scrollbar-thumb {
+            background: rgba(255, 215, 0, 0.15);
+            border-radius: 4px;
+        }
+
+        .result-panel .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 12px;
+        }
+        .result-panel .panel-header h2 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #ffd93d;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .result-panel .panel-header .close-result {
+            background: none;
+            border: none;
+            color: #ff6b6b;
+            font-size: 28px;
+            cursor: pointer;
+            transition: 0.25s;
+            padding: 0 6px;
+            line-height: 1;
+        }
+        .result-panel .panel-header .close-result:hover {
+            transform: rotate(90deg) scale(1.1);
+        }
+
+        .result-panel .result-grid {
+            gap: 14px;
+        }
+        .result-panel .result-grid .card-item {
+            min-width: 80px;
+            padding: 12px 6px;
+            animation: cardPop 0.5s ease forwards;
+            opacity: 0;
+            transform: scale(0.8);
+        }
+        .result-panel .result-grid .card-item:nth-child(1) {
+            animation-delay: 0.05s;
+        }
+        .result-panel .result-grid .card-item:nth-child(2) {
+            animation-delay: 0.10s;
+        }
+        .result-panel .result-grid .card-item:nth-child(3) {
+            animation-delay: 0.15s;
+        }
+        .result-panel .result-grid .card-item:nth-child(4) {
+            animation-delay: 0.20s;
+        }
+        .result-panel .result-grid .card-item:nth-child(5) {
+            animation-delay: 0.25s;
+        }
+        .result-panel .result-grid .card-item:nth-child(6) {
+            animation-delay: 0.30s;
+        }
+        .result-panel .result-grid .card-item:nth-child(7) {
+            animation-delay: 0.35s;
+        }
+        .result-panel .result-grid .card-item:nth-child(8) {
+            animation-delay: 0.40s;
+        }
+        .result-panel .result-grid .card-item:nth-child(9) {
+            animation-delay: 0.45s;
+        }
+        .result-panel .result-grid .card-item:nth-child(10) {
+            animation-delay: 0.50s;
+        }
+
+        @keyframes cardPop {
+            0% {
+                opacity: 0;
+                transform: scale(0.7) rotateY(60deg);
+            }
+            60% {
+                opacity: 1;
+                transform: scale(1.05) rotateY(-5deg);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) rotateY(0deg);
+            }
+        }
+
+        .result-panel .result-summary {
+            margin-top: 16px;
+            padding-top: 14px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            text-align: center;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.4);
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+        .result-panel .result-summary .stat {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .result-panel .result-summary .stat .num {
+            color: #ffd93d;
+            font-weight: 700;
+        }
+
+        /* ========== 通用工具 ========== */
+        .text-glow {
+            text-shadow: 0 0 40px rgba(255, 215, 0, 0.08);
+        }
+        .fade-in {
+            animation: fadeInUp 0.6s ease;
+        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ========== 响应式 ========== */
+        @media (max-width: 700px) {
+            .result-grid .card-item {
+                width: calc(25% - 12px);
+                min-width: 60px;
+            }
+            .result-grid .card-item .card-icon {
+                font-size: 1.8rem;
+                width: 36px;
+                height: 36px;
+            }
+            .result-grid .card-item .card-icon img {
+                width: 36px;
+                height: 36px;
+            }
+            .result-grid .card-item .card-name {
+                font-size: 0.6rem;
+            }
+            .result-grid.single .card-item {
+                width: 140px;
+                max-width: 160px;
+            }
+            .result-grid.single .card-item .card-icon {
+                font-size: 3rem;
+                width: 60px;
+                height: 60px;
+            }
+            .result-grid.single .card-item .card-icon img {
+                width: 60px;
+                height: 60px;
+            }
+            .result-grid.single .card-item .card-name {
+                font-size: 0.85rem;
+            }
+            .result-panel {
+                padding: 16px 12px 20px;
+            }
+            .result-panel .result-grid {
+                gap: 8px;
+            }
+            .result-panel .result-grid .card-item {
+                min-width: 56px;
+                padding: 8px 4px;
+            }
+            .result-panel .result-grid .card-item .card-icon {
+                font-size: 1.4rem;
+                width: 30px;
+                height: 30px;
+            }
+            .result-panel .result-grid .card-item .card-icon img {
+                width: 30px;
+                height: 30px;
+            }
+            .header {
+                padding: 6px 0 10px;
+            }
+            .header .title {
+                font-size: 1rem;
+            }
+            .header .diamond-display {
+                font-size: 0.85rem;
+                padding: 4px 12px 4px 10px;
+            }
+            .actions .btn {
+                min-width: 100px;
+                padding: 12px 12px;
+                font-size: 0.85rem;
+            }
+            .result-panel .result-summary {
+                font-size: 0.75rem;
+                gap: 12px;
+            }
+        }
+
+        @media (max-width: 450px) {
+            .result-grid .card-item {
+                width: calc(33.33% - 10px);
+                min-width: 50px;
+            }
+            .result-grid .card-item .card-icon {
+                font-size: 1.4rem;
+                width: 28px;
+                height: 28px;
+            }
+            .result-grid .card-item .card-icon img {
+                width: 28px;
+                height: 28px;
+            }
+            .result-grid .card-item .card-name {
+                font-size: 0.5rem;
+            }
+            .result-grid.single .card-item {
+                width: 120px;
+                max-width: 140px;
+            }
+            .result-grid.single .card-item .card-icon {
+                font-size: 2.4rem;
+                width: 48px;
+                height: 48px;
+            }
+            .result-grid.single .card-item .card-icon img {
+                width: 48px;
+                height: 48px;
+            }
+            .result-grid.single .card-item .card-name {
+                font-size: 0.75rem;
+            }
+            .result-panel .result-grid .card-item {
+                min-width: 46px;
+                padding: 6px 2px;
+            }
+            .result-panel .result-grid .card-item .card-icon {
+                font-size: 1.2rem;
+                width: 24px;
+                height: 24px;
+            }
+            .result-panel .result-grid .card-item .card-icon img {
+                width: 24px;
+                height: 24px;
+            }
+            .result-panel .result-grid .card-item .card-name {
+                font-size: 0.45rem;
+            }
+            .result-panel .result-grid .card-item .card-rarity {
+                font-size: 0.4rem;
+                padding: 0 4px;
+            }
+            .actions .btn {
+                min-width: 80px;
+                padding: 10px 8px;
+                font-size: 0.75rem;
+                gap: 4px;
+            }
+            .actions .btn .cost {
+                font-size: 0.65rem;
+            }
+            .header .title {
+                font-size: 0.85rem;
+            }
+            .header .diamond-display {
+                font-size: 0.75rem;
+                padding: 3px 8px 3px 6px;
+            }
+            .header .diamond-display .diamond-icon {
+                width: 18px;
+                height: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ====== 枫叶背景 ====== -->
+    <div id="wishLeaves"></div>
+
+    <!-- ====== 主应用 ====== -->
+    <div id="app">
+        <header class="header">
+            <div class="left">
+                <button class="back-btn" id="backBtn">← 返回</button>
+                <span class="title">🎰 抽卡 <span class="sub">· 听凭风引</span></span>
+            </div>
+            <div class="diamond-display">
+                <span class="diamond-icon"></span>
+                <span id="diamondBalance">0</span>
+            </div>
+        </header>
+
+        <div class="showcase" id="showcase">
+            <div class="empty-state" id="emptyState">
+                <span class="big-icon">🃏</span>
+                点击下方按钮开始抽卡<br>
+                <span style="font-size:0.75rem;opacity:0.5;">单抽 160 💎 · 十连抽 1600 💎</span>
+            </div>
+            <div id="resultDisplay" style="display:none;width:100%;"></div>
+        </div>
+
+        <div class="actions">
+            <button class="btn primary" id="singlePullBtn">
+                <span>🎯 单抽</span>
+                <span class="cost">160 💎</span>
+            </button>
+            <button class="btn primary" id="tenPullBtn">
+                <span>🔥 十连抽</span>
+                <span class="cost">1600 💎</span>
+                <span class="badge">×10</span>
+            </button>
+        </div>
+
+        <div style="margin-top:12px;text-align:center;font-size:0.7rem;color:rgba(255,255,255,0.15);letter-spacing:0.05em;">
+            参与奖 70% · 三等奖 15% · 二等奖 12% (12款皮肤) · 一等奖 1% (迷迷) · 隐藏奖 1.9% · 神赐奖 0.1%
+        </div>
+    </div>
+
+    <!-- ====== 抽卡结果覆盖层 ====== -->
+    <div id="resultOverlay">
+        <div class="result-panel">
+            <div class="panel-header">
+                <h2 id="resultTitle">🎉 抽卡结果</h2>
+                <button class="close-result" id="closeResultBtn">✕</button>
+            </div>
+            <div id="resultGridContainer" class="result-grid"></div>
+            <div class="result-summary" id="resultSummary"></div>
+        </div>
+    </div>
+
+    <script>
+        // ================================================================
+        //  抽卡系统 · 等级制 (与 index.html 数据完全兼容)
+        //  二等奖：12款新角色皮肤（各约1%）
+        //  一等奖：迷迷（1%）
+        //  隐藏/神赐：领航员（1.9% / 0.1%）
+        // ================================================================
+
+        // ---------- 皮肤数据 (包含所有抽卡角色) ----------
+        const SKIN_DATA = {
+            // 二等奖皮肤（12个）
+            oatmeal: {
+                id: 'oatmeal',
+                name: '燕麦粥',
+                character: 'oatmeal',
+                characterName: '燕麦粥',
+                emoji: '🥣',
+                rarity: 'epic',
+                rarityLabel: '史诗',
+                img: 'assets/turret_oatmeal.png'
+            },
+            candyapple: {
+                id: 'candyapple',
+                name: '苹果糖',
+                character: 'candyapple',
+                characterName: '苹果糖',
+                emoji: '🍎',
+                rarity: 'epic',
+                rarityLabel: '史诗',
+                img: 'assets/turret_candyapple.png'
+            },
+            honeyfruitsoup: {
+                id: 'honeyfruitsoup',
+                name: '蜜果羹',
+                character: 'honeyfruitsoup',
+                characterName: '蜜果羹',
+                emoji: '🍯',
+                rarity: 'epic',
+                rarityLabel: '史诗',
+                img: 'assets/turret_honeyfruitsoup.png'
+            },
+            nunus: {
+                id: 'nunus',
+                name: '努努斯',
+                character: 'nunus',
+                characterName: '努努斯',
+                emoji: '❄️',
+                rarity: 'epic',
+                rarityLabel: '史诗',
+                img: 'assets/turret_nunus.png'
+            },
+            cherrybis: {
+                id: 'cherrybis',
+                name: '车厘比斯',
+                character: 'cherrybis',
+                characterName: '车厘比斯',
+                emoji: '🍒',
+                rarity: 'epic',
+                rarityLabel: '史诗',
+                img: 'assets/turret_cherrybis.png'
+            },
+            butterflycake: {
+                id: 'butterflycake',
+                name: '蝶糕糕',
+                character: 'butterflycake',
+                characterName: '蝶糕糕',
+                emoji: '🦋',
+                rarity: 'epic',
+                rarityLabel: '史诗',
+                img: 'assets/turret_butterflycake.png'
+            },
+            catthief: {
+                id: 'catthief',
+                name: '猫咪神偷',
+                character: 'catthief',
+                characterName: '猫咪神偷',
+                emoji: '🐱',
+                rarity: 'epic',
+                rarityLabel: '史诗',
+                img: 'assets/turret_catthief.png'
+            },
+            bigcoconut: {
+                id: 'bigcoconut',
+                name: '比格椰',
+                character: 'bigcoconut',
+                characterName: '比格椰',
+                emoji: '🥥',
+                rarity: 'epic',
+                rarityLabel: '史诗',
+                img: 'assets/turret_bigcoconut.png'
+            },
+            gurglingfish: {
+                id: 'gurglingfish',
+                name: '咕噜鱼儿',
+                character: 'gurglingfish',
+                characterName: '咕噜鱼儿',
+                emoji: '🐟',
+                rarity: 'epic',
+                rarityLabel: '史诗',
+                img: 'assets/turret_gurglingfish.png'
+            },
+            strangebeastlord: {
+                id: 'strangebeastlord',
+                name: '奇兽爵',
+                character: 'strangebeastlord',
+                characterName: '奇兽爵',
+                emoji: '🐲',
+                rarity: 'epic',
+                rarityLabel: '史诗',
+                img: 'assets/turret_strangebeastlord.png'
+            },
+            gummyroll: {
+                id: 'gummyroll',
+                name: '胶糖卷',
+                character: 'gummyroll',
+                characterName: '胶糖卷',
+                emoji: '🍬',
+                rarity: 'epic',
+                rarityLabel: '史诗',
+                img: 'assets/turret_gummyroll.png'
+            },
+            toastydragon: {
+                id: 'toastydragon',
+                name: '暖龙龙',
+                character: 'toastydragon',
+                characterName: '暖龙龙',
+                emoji: '🐉',
+                rarity: 'epic',
+                rarityLabel: '史诗',
+                img: 'assets/turret_toastydragon.png'
+            },
+            // 一等奖皮肤（迷迷）
+            meme: {
+                id: 'meme',
+                name: '迷迷',
+                character: 'meme',
+                characterName: '迷迷',
+                emoji: '😵',
+                rarity: 'legendary',
+                rarityLabel: '传说',
+                img: 'assets/turret_meme.png'
+            },
+            // 隐藏/神赐奖（领航员）
+            navigator: {
+                id: 'navigator',
+                name: '领航员',
+                character: 'navigator',
+                characterName: '领航员',
+                emoji: '🧭',
+                rarity: 'legendary',
+                rarityLabel: '传说',
+                img: 'assets/turret_navigator.png'
+            }
+        };
+
+        // 二等奖皮肤ID列表（不含迷迷和领航员）
+        const SECONDARY_SKIN_IDS = [
+            'oatmeal', 'candyapple', 'honeyfruitsoup', 'nunus', 'cherrybis',
+            'butterflycake', 'catthief', 'bigcoconut', 'gurglingfish',
+            'strangebeastlord', 'gummyroll', 'toastydragon'
+        ];
+        // 一等奖皮肤ID（迷迷）
+        const FIRST_SKIN_IDS = ['meme'];
+        // 隐藏/神赐皮肤ID（领航员）
+        const HIDDEN_SKIN_IDS = ['navigator'];
+
+        // ---------- 奖励等级定义 ----------
+        const REWARD_TIERS = [
+            { id: 'participation', name: '参与奖', prob: 70, type: 'diamond', min: 1, max: 80 },
+            { id: 'third', name: '三等奖', prob: 15, type: 'diamond', min: 200, max: 400 },
+            { id: 'second', name: '二等奖', prob: 12, type: 'skin_pool', pool: SECONDARY_SKIN_IDS, comp: 300 },
+            { id: 'first', name: '一等奖', prob: 1, type: 'skin_pool', pool: FIRST_SKIN_IDS, comp: 500 },
+            { id: 'hidden', name: '隐藏奖', prob: 1.9, type: 'skin_pool', pool: HIDDEN_SKIN_IDS, comp: 500 },
+            { id: 'divine', name: '神赐奖', prob: 0.1, type: 'skin_pool', pool: HIDDEN_SKIN_IDS, comp: 500 }
+        ];
+
+        // 累积概率
+        const CUMULATIVE_PROBS = [];
+        let cum = 0;
+        for (const tier of REWARD_TIERS) {
+            cum += tier.prob;
+            CUMULATIVE_PROBS.push(cum);
+        }
+
+        // ---------- 默认数据 ----------
+        const defaultData = {
+            diamond: 0,
+            maxWave: 1,
+            unlockedChars: ['eternal'],
+            currentChar: 'eternal',
+            autoShootUnlocked: false,
+            settings: { volume: 80, sensitivity: 1.0 },
+            ownedSkins: [],
+            wishHistory: [],
+            // 升级等级（保留）
+            attackLevel: 1,
+            attackSpeedLevel: 1,
+            healthLevel: 1,
+            bounceLevel: 0,
+            moveSpeedLevel: 1,
+            goldLevel: 1,
+            skillLevel: 0,
+            elementMasteryLevel: 0,
+            energyRechargeLevel: 0,
+            monsterSpeedLevel: 0,
+            healthRegenLevel: 0
+        };
+
+        const STORAGE_KEY = 'kaeyaWindProgress';
+
+        function loadData() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    if (parsed.diamonds !== undefined && parsed.diamond === undefined) {
+                        parsed.diamond = parsed.diamonds;
+                        delete parsed.diamonds;
+                    }
+                    for (const key in defaultData) {
+                        if (!(key in parsed)) parsed[key] = defaultData[key];
+                    }
+                    if (!Array.isArray(parsed.ownedSkins)) parsed.ownedSkins = [];
+                    if (!Array.isArray(parsed.wishHistory)) parsed.wishHistory = [];
+                    if (!Array.isArray(parsed.unlockedChars)) parsed.unlockedChars = ['eternal'];
+                    return parsed;
+                }
+            } catch (e) { console.warn('读取存档失败', e); }
+            return JSON.parse(JSON.stringify(defaultData));
+        }
+
+        function saveData(data) {
+            try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch (e) { console.warn('保存存档失败', e); }
+        }
+
+        let gameData = loadData();
+
+        // ---------- DOM ----------
+        const diamondBalance = document.getElementById('diamondBalance');
+        const emptyState = document.getElementById('emptyState');
+        const resultDisplay = document.getElementById('resultDisplay');
+        const singlePullBtn = document.getElementById('singlePullBtn');
+        const tenPullBtn = document.getElementById('tenPullBtn');
+        const backBtn = document.getElementById('backBtn');
+        const resultOverlay = document.getElementById('resultOverlay');
+        const resultTitle = document.getElementById('resultTitle');
+        const resultGridContainer = document.getElementById('resultGridContainer');
+        const resultSummary = document.getElementById('resultSummary');
+        const closeResultBtn = document.getElementById('closeResultBtn');
+
+        function updateDiamondDisplay() {
+            diamondBalance.textContent = gameData.diamond;
+        }
+
+        // ---------- 核心抽卡 ----------
+        function pullOne() {
+            const rand = Math.random() * 100;
+            let selectedTier = REWARD_TIERS[0];
+            for (let i = 0; i < CUMULATIVE_PROBS.length; i++) {
+                if (rand < CUMULATIVE_PROBS[i]) {
+                    selectedTier = REWARD_TIERS[i];
+                    break;
+                }
+            }
+
+            const result = {
+                tierId: selectedTier.id,
+                tierName: selectedTier.name,
+                type: selectedTier.type,
+                label: '',
+                detail: '',
+                diamondGain: 0,
+                skinId: null,
+                isNew: false
+            };
+
+            if (selectedTier.type === 'diamond') {
+                const amount = Math.floor(Math.random() * (selectedTier.max - selectedTier.min + 1)) + selectedTier.min;
+                result.diamondGain = amount;
+                result.label = `${selectedTier.name}：${amount} 💎`;
+                result.detail = `${amount} 钻石`;
+                gameData.diamond += amount;
+                saveData(gameData);
+                updateDiamondDisplay();
+                return result;
+            } else if (selectedTier.type === 'skin_pool') {
+                const pool = selectedTier.pool;
+                const chosenId = pool[Math.floor(Math.random() * pool.length)];
+                const skin = SKIN_DATA[chosenId];
+                if (!skin) {
+                    // 容错
+                    gameData.diamond += 50;
+                    saveData(gameData);
+                    updateDiamondDisplay();
+                    result.type = 'diamond';
+                    result.label = '钻石 x50 (补偿)';
+                    result.diamondGain = 50;
+                    result.detail = '50 💎';
+                    return result;
+                }
+
+                result.skinId = chosenId;
+                const isOwned = gameData.ownedSkins.includes(chosenId);
+
+                if (!isOwned) {
+                    // 新皮肤 → 同时解锁角色
+                    gameData.ownedSkins.push(chosenId);
+                    if (!gameData.unlockedChars.includes(chosenId)) {
+                        gameData.unlockedChars.push(chosenId);
+                    }
+                    result.isNew = true;
+                    result.label = `🏆 ${selectedTier.name}：${skin.characterName} · ${skin.name}`;
+                    result.detail = '✨ 新皮肤！';
+                    saveData(gameData);
+                    updateDiamondDisplay();
+                    return result;
+                } else {
+                    // 重复皮肤 → 转化为补偿钻石
+                    const comp = selectedTier.comp || 300;
+                    gameData.diamond += comp;
+                    saveData(gameData);
+                    updateDiamondDisplay();
+                    result.type = 'diamond';
+                    result.label = `💎 重复皮肤补偿 ${comp} 钻石`;
+                    result.diamondGain = comp;
+                    result.detail = `${comp} 💎`;
+                    result.skinId = null;
+                    return result;
+                }
+            }
+
+            // fallback
+            gameData.diamond += 10;
+            saveData(gameData);
+            updateDiamondDisplay();
+            result.type = 'diamond';
+            result.label = '参与奖：10 💎';
+            result.diamondGain = 10;
+            result.detail = '10 💎';
+            return result;
+        }
+
+        // ---------- 执行抽卡 ----------
+        function performPull(count) {
+            const cost = count * 160;
+            if (gameData.diamond < cost) {
+                alert(`💎 钻石不足！需要 ${cost} 钻石，当前 ${gameData.diamond}`);
+                return;
+            }
+
+            gameData.diamond -= cost;
+            saveData(gameData);
+            updateDiamondDisplay();
+
+            const results = [];
+            let totalDiamond = 0;
+            let newSkinCount = 0;
+            let hasHidden = false;
+            let hasDivine = false;
+
+            for (let i = 0; i < count; i++) {
+                const r = pullOne();
+                results.push(r);
+                if (r.type === 'diamond') {
+                    totalDiamond += r.diamondGain || 0;
+                }
+                if (r.isNew) {
+                    newSkinCount++;
+                    if (r.tierId === 'hidden') hasHidden = true;
+                    if (r.tierId === 'divine') hasDivine = true;
+                }
+            }
+
+            showResults(results, count, totalDiamond, newSkinCount, hasHidden, hasDivine);
+
+            if (gameData.wishHistory) {
+                gameData.wishHistory.push({
+                    time: Date.now(),
+                    count: count,
+                    results: results.map(r => ({
+                        tierId: r.tierId,
+                        tierName: r.tierName,
+                        type: r.type,
+                        label: r.label,
+                        skinId: r.skinId,
+                        isNew: r.isNew,
+                        diamondGain: r.diamondGain
+                    }))
+                });
+                if (gameData.wishHistory.length > 200) {
+                    gameData.wishHistory = gameData.wishHistory.slice(-200);
+                }
+                saveData(gameData);
+            }
+        }
+
+        // ---------- 显示结果 ----------
+        function showResults(results, count, totalDiamond, newSkins, hasHidden, hasDivine) {
+            const isSingle = count === 1;
+            resultGridContainer.className = 'result-grid' + (isSingle ? ' single' : '');
+
+            let html = '';
+            for (const r of results) {
+                let iconHtml = '';
+                let rarityClass = 'common';
+                let rarityLabel = r.tierName || '';
+
+                if (r.type === 'diamond') {
+                    iconHtml = '💎';
+                    if (r.tierId === 'first') rarityClass = 'legendary';
+                    else if (r.tierId === 'second') rarityClass = 'epic';
+                    else if (r.tierId === 'third') rarityClass = 'rare';
+                    else rarityClass = 'common';
+                } else if (r.type === 'skin_pool') {
+                    const skinId = r.skinId;
+                    if (skinId && SKIN_DATA[skinId]) {
+                        const skin = SKIN_DATA[skinId];
+                        if (r.tierId === 'divine') {
+                            rarityClass = 'divine';
+                            rarityLabel = '⭐ 神赐';
+                        } else if (r.tierId === 'hidden') {
+                            rarityClass = 'legendary';
+                            rarityLabel = '🌟 隐藏';
+                        } else if (r.tierId === 'first') {
+                            rarityClass = 'legendary';
+                            rarityLabel = '🏆 一等奖';
+                        } else if (r.tierId === 'second') {
+                            rarityClass = 'epic';
+                            rarityLabel = '🎁 二等奖';
+                        } else {
+                            rarityClass = 'epic';
+                            rarityLabel = '皮肤';
+                        }
+                        if (skin.img) {
+                            iconHtml = `<img src="${skin.img}" alt="${skin.name}" onerror="this.style.display='none';this.parentElement.textContent='${skin.emoji || '🎨'}'">`;
+                        } else {
+                            iconHtml = skin.emoji || '🎨';
+                        }
+                    } else {
+                        iconHtml = '🎨';
+                        rarityClass = 'common';
+                        rarityLabel = '皮肤';
+                    }
+                }
+
+                let displayName = r.label || '';
+                if (r.type === 'diamond') {
+                    displayName = `钻石 x${r.diamondGain}`;
+                } else if (r.type === 'skin_pool') {
+                    const skinId = r.skinId;
+                    if (skinId && SKIN_DATA[skinId]) {
+                        displayName = SKIN_DATA[skinId].name;
+                        if (r.isNew) displayName += ' ✨';
+                    } else {
+                        displayName = '皮肤';
+                    }
+                }
+
+                html += `
+                    <div class="card-item rarity-${rarityClass}">
+                        <div class="card-icon">${iconHtml}</div>
+                        <div class="card-name">${displayName}</div>
+                        <div class="card-rarity">${rarityLabel}</div>
+                    </div>
+                `;
+            }
+
+            resultGridContainer.innerHTML = html;
+
+            let summaryHtml = `
+                <span class="stat">📦 共 ${count} 抽</span>
+                <span class="stat">💎 获得钻石 <span class="num">${totalDiamond}</span></span>
+            `;
+            if (newSkins > 0) {
+                summaryHtml += `<span class="stat">✨ 新皮肤 <span class="num">${newSkins}</span></span>`;
+            }
+            if (hasHidden) {
+                summaryHtml += `<span class="stat">🌟 隐藏奖 <span class="num" style="color:#f1c40f;">领航员</span></span>`;
+            }
+            if (hasDivine) {
+                summaryHtml += `<span class="stat">⭐ 神赐奖 <span class="num" style="color:#ff6b6b;">★ 至高荣誉</span></span>`;
+            }
+            resultSummary.innerHTML = summaryHtml;
+
+            if (count === 1) {
+                resultTitle.textContent = '🎯 单抽结果';
+            } else {
+                resultTitle.textContent = '🔥 十连抽结果';
+                if (hasDivine) resultTitle.textContent = '✨ 神赐降临！';
+                else if (hasHidden) resultTitle.textContent = '🌟 隐藏奖出现！';
+                else if (newSkins >= 1) resultTitle.textContent = '🎉 十连抽 · 收获新皮肤！';
+            }
+
+            resultOverlay.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeResult() {
+            resultOverlay.classList.remove('show');
+            document.body.style.overflow = '';
+            updateShowcase();
+        }
+
+        // ---------- 更新展示区 ----------
+        function updateShowcase() {
+            const history = gameData.wishHistory || [];
+            if (history.length === 0) {
+                emptyState.style.display = 'block';
+                resultDisplay.style.display = 'none';
+                return;
+            }
+
+            const last = history[history.length - 1];
+            const results = last.results || [];
+            if (results.length === 0) {
+                emptyState.style.display = 'block';
+                resultDisplay.style.display = 'none';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            resultDisplay.style.display = 'block';
+
+            const isSingle = results.length === 1;
+            let html = `<div class="result-grid ${isSingle ? 'single' : ''}">`;
+            const showItems = results.slice(-10);
+            for (const r of showItems) {
+                let iconHtml = '🎁';
+                let rarityClass = 'common';
+                let rarityLabel = r.tierName || '';
+
+                if (r.type === 'diamond') {
+                    iconHtml = '💎';
+                    if (r.tierId === 'first') rarityClass = 'legendary';
+                    else if (r.tierId === 'second') rarityClass = 'epic';
+                    else if (r.tierId === 'third') rarityClass = 'rare';
+                    else rarityClass = 'common';
+                } else if (r.type === 'skin_pool') {
+                    const skinId = r.skinId;
+                    if (skinId && SKIN_DATA[skinId]) {
+                        const skin = SKIN_DATA[skinId];
+                        if (r.tierId === 'divine') {
+                            rarityClass = 'divine';
+                            rarityLabel = '⭐ 神赐';
+                        } else if (r.tierId === 'hidden') {
+                            rarityClass = 'legendary';
+                            rarityLabel = '🌟 隐藏';
+                        } else if (r.tierId === 'first') {
+                            rarityClass = 'legendary';
+                            rarityLabel = '🏆 一等奖';
+                        } else if (r.tierId === 'second') {
+                            rarityClass = 'epic';
+                            rarityLabel = '🎁 二等奖';
+                        } else {
+                            rarityClass = 'epic';
+                            rarityLabel = '皮肤';
+                        }
+                        if (skin.img) {
+                            iconHtml = `<img src="${skin.img}" alt="${skin.name}" onerror="this.style.display='none';this.parentElement.textContent='${skin.emoji || '🎨'}'">`;
+                        } else {
+                            iconHtml = skin.emoji || '🎨';
+                        }
+                    } else {
+                        iconHtml = '🎨';
+                        rarityClass = 'common';
+                        rarityLabel = '皮肤';
+                    }
+                }
+
+                let displayName = r.label || '';
+                if (r.type === 'diamond') {
+                    displayName = `钻石 x${r.diamondGain || 0}`;
+                } else if (r.type === 'skin_pool') {
+                    const skinId = r.skinId;
+                    if (skinId && SKIN_DATA[skinId]) {
+                        displayName = SKIN_DATA[skinId].name;
+                        if (r.isNew) displayName += ' ✨';
+                    } else {
+                        displayName = '皮肤';
+                    }
+                }
+
+                html += `
+                    <div class="card-item rarity-${rarityClass}">
+                        <div class="card-icon">${iconHtml}</div>
+                        <div class="card-name">${displayName}</div>
+                        <div class="card-rarity">${rarityLabel}</div>
+                    </div>
+                `;
+            }
+            html += `</div>`;
+            resultDisplay.innerHTML = html;
+        }
+
+        // ---------- 事件绑定 ----------
+        singlePullBtn.addEventListener('click', () => performPull(1));
+        tenPullBtn.addEventListener('click', () => performPull(10));
+        closeResultBtn.addEventListener('click', closeResult);
+        resultOverlay.addEventListener('click', (e) => { if (e.target === resultOverlay) closeResult(); });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && resultOverlay.classList.contains('show')) closeResult();
+        });
+
+        backBtn.addEventListener('click', () => {
+            if (resultOverlay.classList.contains('show')) closeResult();
+            window.location.href = 'index.html';
+        });
+
+        // ---------- 初始化枫叶 ----------
+        function initLeaves() {
+            const container = document.getElementById('wishLeaves');
+            const emojis = ['🍁', '🍂', '🍃', '🌿'];
+            for (let i = 0; i < 24; i++) {
+                const leaf = document.createElement('div');
+                leaf.className = 'wish-leaf';
+                leaf.textContent = emojis[i % emojis.length];
+                leaf.style.left = Math.random() * 100 + '%';
+                leaf.style.animationDuration = 14 + Math.random() * 18 + 's';
+                leaf.style.animationDelay = Math.random() * 18 + 's';
+                leaf.style.fontSize = 16 + Math.random() * 20 + 'px';
+                leaf.style.opacity = 0.06 + Math.random() * 0.14;
+                leaf.style.transform = `rotate(${Math.random() * 360}deg)`;
+                container.appendChild(leaf);
+            }
+        }
+        initLeaves();
+
+        // ---------- 初始化 ----------
+        function init() {
+            updateDiamondDisplay();
+            updateShowcase();
+            console.log('🎰 抽卡系统已加载（新奖池）');
+            console.log('📊 当前钻石:', gameData.diamond);
+            console.log('🎨 已拥有皮肤:', gameData.ownedSkins);
+            console.log('👤 已解锁角色:', gameData.unlockedChars);
+            console.log('📜 抽卡历史:', (gameData.wishHistory || []).length, '条');
+        }
+        init();
+
+        // 键盘快捷键
+        document.addEventListener('keydown', (e) => {
+            if (e.key === '1' && !e.ctrlKey && !e.metaKey) singlePullBtn.click();
+            if (e.key === '2' && !e.ctrlKey && !e.metaKey) tenPullBtn.click();
+        });
+
+        window.addEventListener('beforeunload', () => saveData(gameData));
+    </script>
+</body>
+</html>
