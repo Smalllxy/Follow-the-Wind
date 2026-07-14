@@ -697,6 +697,65 @@
         }
         .upgrade-item .downgrade-btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
 
+        /* ========== 确认对话框样式 ========== */
+        .modal-message {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #d0d8e8;
+            padding: 8px 4px 4px 4px;
+            text-align: center;
+        }
+        .modal-message .highlight {
+            color: #ffd93d;
+            font-weight: 600;
+        }
+        .modal-actions {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 24px;
+            flex-wrap: wrap;
+        }
+        .modal-actions .btn-cancel,
+        .modal-actions .btn-confirm {
+            padding: 10px 32px;
+            border-radius: 40px;
+            font-weight: 700;
+            font-size: 1rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            font-family: inherit;
+            letter-spacing: 0.03em;
+            min-width: 100px;
+        }
+        .modal-actions .btn-cancel {
+            background: rgba(255, 255, 255, 0.08);
+            color: #ccc;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+        .modal-actions .btn-cancel:hover {
+            background: rgba(255, 255, 255, 0.18);
+            transform: scale(1.03);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+        .modal-actions .btn-cancel:active { transform: scale(0.97); }
+        .modal-actions .btn-confirm {
+            background: linear-gradient(135deg, #f1c40f, #e67e22);
+            color: #1a1a1a;
+            box-shadow: 0 4px 20px rgba(241, 196, 15, 0.35);
+        }
+        .modal-actions .btn-confirm:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 30px rgba(241, 196, 15, 0.55);
+        }
+        .modal-actions .btn-confirm:active { transform: scale(0.97); }
+        /* 仅一个按钮时居中 */
+        .modal-actions:has(.btn-confirm:only-child) .btn-confirm {
+            min-width: 140px;
+        }
+
         /* ========== 响应式 ========== */
         @media (max-width: 600px) {
             .modal-box { padding: 14px 12px; width: 96%; }
@@ -715,6 +774,12 @@
             #globalDiamond .icon { width: 18px; height: 18px; }
             .upgrade-item { flex-wrap: wrap; gap: 2px; }
             .upgrade-item .value { margin-right: 4px; }
+            .modal-actions .btn-cancel,
+            .modal-actions .btn-confirm {
+                padding: 8px 20px;
+                font-size: 0.9rem;
+                min-width: 80px;
+            }
         }
         @media (max-width: 400px) {
             .character-grid { grid-template-columns: repeat(auto-fill, minmax(75px, 1fr)); gap: 4px; }
@@ -756,7 +821,7 @@
                 <button class="home-btn" id="homeRulesBtn"><span class="icon">📖</span> 游戏规则</button>
                 <button class="home-btn" id="homeSettingsBtn"><span class="icon">⚙️</span> 游戏设置</button>
             </div>
-            <div class="version">v2.7 · 枫叶纷飞 · 风引归途 · 17位角色</div>
+            <div class="version">v2.8 · 枫叶纷飞 · 风引归途 · 17位角色</div>
         </div>
     </div>
 
@@ -866,7 +931,7 @@
             },
             sunny: {
                 id: 'sunny',
-                name: '老日',          // 改名
+                name: '老日',
                 emoji: '☀️',
                 cost: 500,
                 source: 'default',
@@ -885,10 +950,10 @@
                 name: '领航员',
                 emoji: '🧭',
                 cost: 0,
-                source: 'wish',        // 仅抽卡获取
+                source: 'wish',
                 img: 'assets/turret_navigator.png'
             },
-            // ====== 13位新角色（全部定价，可直接购买） ======
+            // ====== 13位新角色（全部定价） ======
             oatmeal: {
                 id: 'oatmeal',
                 name: '燕麦粥',
@@ -1598,11 +1663,12 @@
         // ---------- 初始化 ----------
         updateAllUI();
 
-        console.log('🍁 永动机的归途是听凭风引 · 首页 v2.7');
+        console.log('🍁 永动机的归途是听凭风引 · 首页 v2.8');
         console.log('📌 角色图片命名规则: assets/turret_英文名.png（小写无空格）');
         console.log('📊 当前游戏数据:', gameData);
         console.log('🏆 最高积分:', highScore);
         console.log('💎 所有角色（除领航员）均已定价，可直接购买。');
+        console.log('✨ 确认对话框样式已优化，按钮更精致。');
     </script>
 </body>
 </html>

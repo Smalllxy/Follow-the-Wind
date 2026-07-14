@@ -234,38 +234,52 @@
             letter-spacing: 0.04em;
             margin-top: 2px;
         }
-        /* 稀有度颜色映射 */
+        /* ----- 颜色映射（等级边框 & 文字）----- */
+        /* 参与奖 - 白色 */
         .result-grid .card-item.rarity-common {
-            border-color: rgba(52, 152, 219, 0.3);
-            background: rgba(52, 152, 219, 0.05);
+            border-color: rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.04);
         }
         .result-grid .card-item.rarity-common .card-rarity {
-            color: #5dade2;
+            color: #ffffff;
         }
+        /* 三等奖 - 绿色 */
         .result-grid .card-item.rarity-rare {
-            border-color: rgba(46, 204, 113, 0.4);
-            background: rgba(46, 204, 113, 0.06);
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, 0.05);
         }
         .result-grid .card-item.rarity-rare .card-rarity {
-            color: #58d68d;
+            color: #2ecc71;
         }
+        /* 二等奖 - 蓝色 */
         .result-grid .card-item.rarity-epic {
-            border-color: rgba(155, 89, 182, 0.5);
-            background: rgba(155, 89, 182, 0.07);
+            border-color: #3498db;
+            background: rgba(52, 152, 219, 0.06);
         }
         .result-grid .card-item.rarity-epic .card-rarity {
-            color: #af7ac5;
+            color: #3498db;
         }
+        /* 一等奖 - 紫色 */
         .result-grid .card-item.rarity-legendary {
-            border-color: rgba(241, 196, 15, 0.6);
-            background: rgba(241, 196, 15, 0.08);
-            box-shadow: 0 0 30px rgba(241, 196, 15, 0.1);
+            border-color: #8e44ad;
+            background: rgba(142, 68, 173, 0.07);
+            box-shadow: 0 0 30px rgba(142, 68, 173, 0.1);
         }
         .result-grid .card-item.rarity-legendary .card-rarity {
+            color: #af7ac5;
+        }
+        /* 隐藏奖 - 金色 */
+        .result-grid .card-item.rarity-hidden {
+            border-color: #f1c40f;
+            background: rgba(241, 196, 15, 0.08);
+            box-shadow: 0 0 40px rgba(241, 196, 15, 0.15);
+        }
+        .result-grid .card-item.rarity-hidden .card-rarity {
             color: #f1c40f;
         }
+        /* 神赐奖 - 红色 */
         .result-grid .card-item.rarity-divine {
-            border-color: rgba(231, 76, 60, 0.7);
+            border-color: #e74c3c;
             background: rgba(231, 76, 60, 0.1);
             box-shadow: 0 0 50px rgba(231, 76, 60, 0.2);
             animation: divineGlow 1.8s ease-in-out infinite;
@@ -274,13 +288,8 @@
             color: #ff6b6b;
         }
         @keyframes divineGlow {
-            0%,
-            100% {
-                box-shadow: 0 0 30px rgba(231, 76, 60, 0.15);
-            }
-            50% {
-                box-shadow: 0 0 80px rgba(231, 76, 60, 0.35);
-            }
+            0%, 100% { box-shadow: 0 0 30px rgba(231, 76, 60, 0.15); }
+            50% { box-shadow: 0 0 80px rgba(231, 76, 60, 0.35); }
         }
 
         /* 单抽大卡片 */
@@ -387,7 +396,204 @@
             font-weight: 600;
         }
 
-        /* ========== 抽卡结果覆盖层 ========== */
+        /* 信息按钮组 */
+        .info-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin: 10px 0 4px;
+        }
+        .info-buttons .info-btn {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: #aab;
+            padding: 6px 18px;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: 0.25s;
+            font-family: inherit;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .info-buttons .info-btn:hover {
+            background: rgba(255, 215, 0, 0.08);
+            border-color: rgba(255, 215, 0, 0.25);
+            color: #fff;
+        }
+
+        /* ========== 模态框（通用） ========== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.82);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            justify-content: center;
+            align-items: center;
+            z-index: 100000;
+            animation: modalFade 0.3s ease;
+            padding: 16px;
+        }
+        .modal-overlay.show {
+            display: flex;
+        }
+        @keyframes modalFade {
+            from {
+                opacity: 0;
+                transform: scale(0.96);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .modal-box {
+            background: #1a2a40;
+            border-radius: 24px;
+            padding: 24px 28px;
+            max-width: 640px;
+            width: 96%;
+            max-height: 85vh;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 215, 0, 0.12);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.7);
+            color: #e8f0fe;
+            position: relative;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 215, 0, 0.15) transparent;
+        }
+        .modal-box::-webkit-scrollbar {
+            width: 4px;
+        }
+        .modal-box::-webkit-scrollbar-thumb {
+            background: rgba(255, 215, 0, 0.15);
+            border-radius: 4px;
+        }
+
+        .modal-box .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 10px;
+            margin-bottom: 16px;
+        }
+        .modal-box .modal-header h2 {
+            font-size: clamp(1.1rem, 2.5vw, 1.6rem);
+            color: #f1c40f;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .modal-box .modal-header .close-btn {
+            background: none;
+            border: none;
+            color: #ff6b6b;
+            font-size: 28px;
+            cursor: pointer;
+            transition: 0.2s;
+            line-height: 1;
+            padding: 0 6px;
+        }
+        .modal-box .modal-header .close-btn:hover {
+            transform: rotate(90deg) scale(1.1);
+        }
+
+        .modal-box .content {
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        /* 奖池表格 */
+        .prob-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+            margin: 8px 0;
+        }
+        .prob-table th,
+        .prob-table td {
+            padding: 6px 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            text-align: left;
+        }
+        .prob-table th {
+            color: #f1c40f;
+            font-weight: 600;
+            border-bottom: 2px solid rgba(255, 215, 0, 0.15);
+        }
+        .prob-table td {
+            color: #d0d8e8;
+        }
+        .prob-table .highlight {
+            color: #ffd93d;
+        }
+        .prob-table .skin-list {
+            font-size: 0.85rem;
+            color: #b0b8c8;
+        }
+        .prob-table .skin-list span {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.04);
+            padding: 0 8px;
+            border-radius: 12px;
+            margin: 2px 4px 2px 0;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        /* 等级颜色在表格中的文字 */
+        .tier-participation { color: #ffffff; }
+        .tier-third { color: #2ecc71; }
+        .tier-second { color: #3498db; }
+        .tier-first { color: #8e44ad; }
+        .tier-hidden { color: #f1c40f; }
+        .tier-divine { color: #e74c3c; }
+
+        /* 历史记录列表 */
+        .history-list {
+            max-height: 55vh;
+            overflow-y: auto;
+            margin-top: 4px;
+        }
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            font-size: 0.9rem;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+        .history-item .h-tier {
+            font-weight: 600;
+            min-width: 80px;
+        }
+        .history-item .h-reward {
+            flex: 1;
+            color: #e8f0fe;
+            padding: 0 8px;
+        }
+        .history-item .h-time {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.35);
+            white-space: nowrap;
+        }
+        .history-empty {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.25);
+            padding: 30px 0;
+            font-size: 1rem;
+        }
+
+        /* ========== 抽卡结果覆盖层（原有） ========== */
         #resultOverlay {
             display: none;
             position: fixed;
@@ -480,50 +686,21 @@
             opacity: 0;
             transform: scale(0.8);
         }
-        .result-panel .result-grid .card-item:nth-child(1) {
-            animation-delay: 0.05s;
-        }
-        .result-panel .result-grid .card-item:nth-child(2) {
-            animation-delay: 0.10s;
-        }
-        .result-panel .result-grid .card-item:nth-child(3) {
-            animation-delay: 0.15s;
-        }
-        .result-panel .result-grid .card-item:nth-child(4) {
-            animation-delay: 0.20s;
-        }
-        .result-panel .result-grid .card-item:nth-child(5) {
-            animation-delay: 0.25s;
-        }
-        .result-panel .result-grid .card-item:nth-child(6) {
-            animation-delay: 0.30s;
-        }
-        .result-panel .result-grid .card-item:nth-child(7) {
-            animation-delay: 0.35s;
-        }
-        .result-panel .result-grid .card-item:nth-child(8) {
-            animation-delay: 0.40s;
-        }
-        .result-panel .result-grid .card-item:nth-child(9) {
-            animation-delay: 0.45s;
-        }
-        .result-panel .result-grid .card-item:nth-child(10) {
-            animation-delay: 0.50s;
-        }
+        .result-panel .result-grid .card-item:nth-child(1) { animation-delay: 0.05s; }
+        .result-panel .result-grid .card-item:nth-child(2) { animation-delay: 0.10s; }
+        .result-panel .result-grid .card-item:nth-child(3) { animation-delay: 0.15s; }
+        .result-panel .result-grid .card-item:nth-child(4) { animation-delay: 0.20s; }
+        .result-panel .result-grid .card-item:nth-child(5) { animation-delay: 0.25s; }
+        .result-panel .result-grid .card-item:nth-child(6) { animation-delay: 0.30s; }
+        .result-panel .result-grid .card-item:nth-child(7) { animation-delay: 0.35s; }
+        .result-panel .result-grid .card-item:nth-child(8) { animation-delay: 0.40s; }
+        .result-panel .result-grid .card-item:nth-child(9) { animation-delay: 0.45s; }
+        .result-panel .result-grid .card-item:nth-child(10) { animation-delay: 0.50s; }
 
         @keyframes cardPop {
-            0% {
-                opacity: 0;
-                transform: scale(0.7) rotateY(60deg);
-            }
-            60% {
-                opacity: 1;
-                transform: scale(1.05) rotateY(-5deg);
-            }
-            100% {
-                opacity: 1;
-                transform: scale(1) rotateY(0deg);
-            }
+            0% { opacity: 0; transform: scale(0.7) rotateY(60deg); }
+            60% { opacity: 1; transform: scale(1.05) rotateY(-5deg); }
+            100% { opacity: 1; transform: scale(1) rotateY(0deg); }
         }
 
         .result-panel .result-summary {
@@ -638,6 +815,19 @@
                 font-size: 0.75rem;
                 gap: 12px;
             }
+            .modal-box {
+                padding: 16px 14px;
+            }
+            .history-item {
+                font-size: 0.8rem;
+            }
+            .history-item .h-tier {
+                min-width: 60px;
+            }
+            .info-buttons .info-btn {
+                font-size: 0.75rem;
+                padding: 4px 12px;
+            }
         }
 
         @media (max-width: 450px) {
@@ -713,6 +903,31 @@
                 width: 18px;
                 height: 18px;
             }
+            .modal-box {
+                padding: 12px 10px;
+            }
+            .prob-table {
+                font-size: 0.75rem;
+            }
+            .prob-table th,
+            .prob-table td {
+                padding: 4px 4px;
+            }
+            .history-item {
+                font-size: 0.7rem;
+                padding: 4px 4px;
+            }
+            .history-item .h-tier {
+                min-width: 50px;
+            }
+            .info-buttons {
+                gap: 8px;
+                flex-wrap: wrap;
+            }
+            .info-buttons .info-btn {
+                font-size: 0.7rem;
+                padding: 3px 10px;
+            }
         }
     </style>
 </head>
@@ -755,12 +970,18 @@
             </button>
         </div>
 
-        <div style="margin-top:12px;text-align:center;font-size:0.7rem;color:rgba(255,255,255,0.15);letter-spacing:0.05em;">
-            参与奖 70% · 三等奖 15% · 二等奖 12% (12款皮肤) · 一等奖 1% (迷迷) · 隐藏奖 1.9% · 神赐奖 0.1%
+        <!-- 信息按钮 -->
+        <div class="info-buttons">
+            <button class="info-btn" id="probBtn">📊 奖池概率</button>
+            <button class="info-btn" id="historyBtn">📜 抽卡历史</button>
+        </div>
+
+        <div style="margin-top:8px;text-align:center;font-size:0.7rem;color:rgba(255,255,255,0.15);letter-spacing:0.05em;">
+            参与奖 70% · 三等奖 15% · 二等奖 12% (12款皮肤) · 一等奖 2% (迷迷) · 隐藏奖 0.9% · 神赐奖 0.1%
         </div>
     </div>
 
-    <!-- ====== 抽卡结果覆盖层 ====== -->
+    <!-- ====== 抽卡结果覆盖层（原有） ====== -->
     <div id="resultOverlay">
         <div class="result-panel">
             <div class="panel-header">
@@ -772,15 +993,41 @@
         </div>
     </div>
 
+    <!-- ====== 奖池概率模态框 ====== -->
+    <div class="modal-overlay" id="probabilityModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h2>📊 奖池概率 &amp; 内容</h2>
+                <button class="close-btn" id="probCloseBtn">✕</button>
+            </div>
+            <div class="content" id="probabilityContent">
+                <!-- 动态填充 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ====== 抽卡历史模态框 ====== -->
+    <div class="modal-overlay" id="historyModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h2>📜 抽卡历史 <span style="font-size:0.7rem;color:rgba(255,255,255,0.3);font-weight:400;">（最近100条）</span></h2>
+                <button class="close-btn" id="historyCloseBtn">✕</button>
+            </div>
+            <div class="content" id="historyContent">
+                <!-- 动态填充 -->
+            </div>
+        </div>
+    </div>
+
     <script>
         // ================================================================
-        //  抽卡系统 · 等级制 (与 index.html 数据完全兼容)
-        //  二等奖：12款新角色皮肤（各约1%）
-        //  一等奖：迷迷（1%）
-        //  隐藏/神赐：领航员（1.9% / 0.1%）
+        //  抽卡系统 · 最新概率
+        //  参与70% · 三等奖15% · 二等奖12% · 一等奖2% · 隐藏0.9% · 神赐0.1%
+        //  颜色：参与白、三绿、二蓝、一紫、隐藏金、神赐红
+        //  补偿：二等奖400，一等奖800，隐藏1200，神赐1200
         // ================================================================
 
-        // ---------- 皮肤数据 (包含所有抽卡角色) ----------
+        // ---------- 皮肤数据 ----------
         const SKIN_DATA = {
             // 二等奖皮肤（12个）
             oatmeal: {
@@ -927,25 +1174,23 @@
             }
         };
 
-        // 二等奖皮肤ID列表（不含迷迷和领航员）
+        // 皮肤池
         const SECONDARY_SKIN_IDS = [
             'oatmeal', 'candyapple', 'honeyfruitsoup', 'nunus', 'cherrybis',
             'butterflycake', 'catthief', 'bigcoconut', 'gurglingfish',
             'strangebeastlord', 'gummyroll', 'toastydragon'
         ];
-        // 一等奖皮肤ID（迷迷）
         const FIRST_SKIN_IDS = ['meme'];
-        // 隐藏/神赐皮肤ID（领航员）
         const HIDDEN_SKIN_IDS = ['navigator'];
 
-        // ---------- 奖励等级定义 ----------
+        // ---------- 奖励等级定义（最新概率） ----------
         const REWARD_TIERS = [
-            { id: 'participation', name: '参与奖', prob: 70, type: 'diamond', min: 1, max: 80 },
-            { id: 'third', name: '三等奖', prob: 15, type: 'diamond', min: 200, max: 400 },
-            { id: 'second', name: '二等奖', prob: 12, type: 'skin_pool', pool: SECONDARY_SKIN_IDS, comp: 300 },
-            { id: 'first', name: '一等奖', prob: 1, type: 'skin_pool', pool: FIRST_SKIN_IDS, comp: 500 },
-            { id: 'hidden', name: '隐藏奖', prob: 1.9, type: 'skin_pool', pool: HIDDEN_SKIN_IDS, comp: 500 },
-            { id: 'divine', name: '神赐奖', prob: 0.1, type: 'skin_pool', pool: HIDDEN_SKIN_IDS, comp: 500 }
+            { id: 'participation', name: '参与奖', prob: 70, type: 'diamond', min: 1, max: 80, comp: 0 },
+            { id: 'third', name: '三等奖', prob: 15, type: 'diamond', min: 200, max: 400, comp: 0 },
+            { id: 'second', name: '二等奖', prob: 12, type: 'skin_pool', pool: SECONDARY_SKIN_IDS, comp: 400 },
+            { id: 'first', name: '一等奖', prob: 2, type: 'skin_pool', pool: FIRST_SKIN_IDS, comp: 800 },
+            { id: 'hidden', name: '隐藏奖', prob: 0.9, type: 'skin_pool', pool: HIDDEN_SKIN_IDS, comp: 1200 },
+            { id: 'divine', name: '神赐奖', prob: 0.1, type: 'skin_pool', pool: HIDDEN_SKIN_IDS, comp: 1200 }
         ];
 
         // 累积概率
@@ -955,6 +1200,16 @@
             cum += tier.prob;
             CUMULATIVE_PROBS.push(cum);
         }
+
+        // 等级颜色映射
+        const TIER_COLORS = {
+            participation: '#ffffff',
+            third: '#2ecc71',
+            second: '#3498db',
+            first: '#8e44ad',
+            hidden: '#f1c40f',
+            divine: '#e74c3c'
+        };
 
         // ---------- 默认数据 ----------
         const defaultData = {
@@ -966,7 +1221,6 @@
             settings: { volume: 80, sensitivity: 1.0 },
             ownedSkins: [],
             wishHistory: [],
-            // 升级等级（保留）
             attackLevel: 1,
             attackSpeedLevel: 1,
             healthLevel: 1,
@@ -1022,6 +1276,15 @@
         const resultSummary = document.getElementById('resultSummary');
         const closeResultBtn = document.getElementById('closeResultBtn');
 
+        const probModal = document.getElementById('probabilityModal');
+        const probCloseBtn = document.getElementById('probCloseBtn');
+        const probContent = document.getElementById('probabilityContent');
+        const historyModal = document.getElementById('historyModal');
+        const historyCloseBtn = document.getElementById('historyCloseBtn');
+        const historyContent = document.getElementById('historyContent');
+        const probBtn = document.getElementById('probBtn');
+        const historyBtn = document.getElementById('historyBtn');
+
         function updateDiamondDisplay() {
             diamondBalance.textContent = gameData.diamond;
         }
@@ -1062,7 +1325,6 @@
                 const chosenId = pool[Math.floor(Math.random() * pool.length)];
                 const skin = SKIN_DATA[chosenId];
                 if (!skin) {
-                    // 容错
                     gameData.diamond += 50;
                     saveData(gameData);
                     updateDiamondDisplay();
@@ -1077,7 +1339,6 @@
                 const isOwned = gameData.ownedSkins.includes(chosenId);
 
                 if (!isOwned) {
-                    // 新皮肤 → 同时解锁角色
                     gameData.ownedSkins.push(chosenId);
                     if (!gameData.unlockedChars.includes(chosenId)) {
                         gameData.unlockedChars.push(chosenId);
@@ -1089,7 +1350,6 @@
                     updateDiamondDisplay();
                     return result;
                 } else {
-                    // 重复皮肤 → 转化为补偿钻石
                     const comp = selectedTier.comp || 300;
                     gameData.diamond += comp;
                     saveData(gameData);
@@ -1179,32 +1439,22 @@
                 let rarityClass = 'common';
                 let rarityLabel = r.tierName || '';
 
+                switch (r.tierId) {
+                    case 'participation': rarityClass = 'common'; break;
+                    case 'third': rarityClass = 'rare'; break;
+                    case 'second': rarityClass = 'epic'; break;
+                    case 'first': rarityClass = 'legendary'; break;
+                    case 'hidden': rarityClass = 'hidden'; break;
+                    case 'divine': rarityClass = 'divine'; break;
+                    default: rarityClass = 'common';
+                }
+
                 if (r.type === 'diamond') {
                     iconHtml = '💎';
-                    if (r.tierId === 'first') rarityClass = 'legendary';
-                    else if (r.tierId === 'second') rarityClass = 'epic';
-                    else if (r.tierId === 'third') rarityClass = 'rare';
-                    else rarityClass = 'common';
                 } else if (r.type === 'skin_pool') {
                     const skinId = r.skinId;
                     if (skinId && SKIN_DATA[skinId]) {
                         const skin = SKIN_DATA[skinId];
-                        if (r.tierId === 'divine') {
-                            rarityClass = 'divine';
-                            rarityLabel = '⭐ 神赐';
-                        } else if (r.tierId === 'hidden') {
-                            rarityClass = 'legendary';
-                            rarityLabel = '🌟 隐藏';
-                        } else if (r.tierId === 'first') {
-                            rarityClass = 'legendary';
-                            rarityLabel = '🏆 一等奖';
-                        } else if (r.tierId === 'second') {
-                            rarityClass = 'epic';
-                            rarityLabel = '🎁 二等奖';
-                        } else {
-                            rarityClass = 'epic';
-                            rarityLabel = '皮肤';
-                        }
                         if (skin.img) {
                             iconHtml = `<img src="${skin.img}" alt="${skin.name}" onerror="this.style.display='none';this.parentElement.textContent='${skin.emoji || '🎨'}'">`;
                         } else {
@@ -1212,8 +1462,6 @@
                         }
                     } else {
                         iconHtml = '🎨';
-                        rarityClass = 'common';
-                        rarityLabel = '皮肤';
                     }
                 }
 
@@ -1252,7 +1500,7 @@
                 summaryHtml += `<span class="stat">🌟 隐藏奖 <span class="num" style="color:#f1c40f;">领航员</span></span>`;
             }
             if (hasDivine) {
-                summaryHtml += `<span class="stat">⭐ 神赐奖 <span class="num" style="color:#ff6b6b;">★ 至高荣誉</span></span>`;
+                summaryHtml += `<span class="stat">⭐ 神赐奖 <span class="num" style="color:#e74c3c;">★ 至高荣誉</span></span>`;
             }
             resultSummary.innerHTML = summaryHtml;
 
@@ -1303,32 +1551,22 @@
                 let rarityClass = 'common';
                 let rarityLabel = r.tierName || '';
 
+                switch (r.tierId) {
+                    case 'participation': rarityClass = 'common'; break;
+                    case 'third': rarityClass = 'rare'; break;
+                    case 'second': rarityClass = 'epic'; break;
+                    case 'first': rarityClass = 'legendary'; break;
+                    case 'hidden': rarityClass = 'hidden'; break;
+                    case 'divine': rarityClass = 'divine'; break;
+                    default: rarityClass = 'common';
+                }
+
                 if (r.type === 'diamond') {
                     iconHtml = '💎';
-                    if (r.tierId === 'first') rarityClass = 'legendary';
-                    else if (r.tierId === 'second') rarityClass = 'epic';
-                    else if (r.tierId === 'third') rarityClass = 'rare';
-                    else rarityClass = 'common';
                 } else if (r.type === 'skin_pool') {
                     const skinId = r.skinId;
                     if (skinId && SKIN_DATA[skinId]) {
                         const skin = SKIN_DATA[skinId];
-                        if (r.tierId === 'divine') {
-                            rarityClass = 'divine';
-                            rarityLabel = '⭐ 神赐';
-                        } else if (r.tierId === 'hidden') {
-                            rarityClass = 'legendary';
-                            rarityLabel = '🌟 隐藏';
-                        } else if (r.tierId === 'first') {
-                            rarityClass = 'legendary';
-                            rarityLabel = '🏆 一等奖';
-                        } else if (r.tierId === 'second') {
-                            rarityClass = 'epic';
-                            rarityLabel = '🎁 二等奖';
-                        } else {
-                            rarityClass = 'epic';
-                            rarityLabel = '皮肤';
-                        }
                         if (skin.img) {
                             iconHtml = `<img src="${skin.img}" alt="${skin.name}" onerror="this.style.display='none';this.parentElement.textContent='${skin.emoji || '🎨'}'">`;
                         } else {
@@ -1336,8 +1574,6 @@
                         }
                     } else {
                         iconHtml = '🎨';
-                        rarityClass = 'common';
-                        rarityLabel = '皮肤';
                     }
                 }
 
@@ -1366,18 +1602,136 @@
             resultDisplay.innerHTML = html;
         }
 
+        // ---------- 奖池概率展示 ----------
+        function renderProbability() {
+            let html = `
+                <table class="prob-table">
+                    <thead>
+                        <tr><th>等级</th><th>奖励内容</th><th>概率</th><th>重复补偿</th></tr>
+                    </thead>
+                    <tbody>
+            `;
+            for (const tier of REWARD_TIERS) {
+                let content = '';
+                let compText = '';
+                if (tier.type === 'diamond') {
+                    content = `${tier.min}～${tier.max} 钻石`;
+                    compText = '—';
+                } else if (tier.type === 'skin_pool') {
+                    const skinNames = tier.pool.map(id => {
+                        const skin = SKIN_DATA[id];
+                        return skin ? skin.name : id;
+                    });
+                    content = skinNames.join('、');
+                    compText = tier.comp > 0 ? `${tier.comp} 💎` : '—';
+                }
+                const color = TIER_COLORS[tier.id] || '#ffffff';
+                html += `
+                    <tr>
+                        <td><strong style="color:${color};">${tier.name}</strong></td>
+                        <td>${content}</td>
+                        <td>${tier.prob}%</td>
+                        <td>${compText}</td>
+                    </tr>
+                `;
+            }
+            html += `
+                    </tbody>
+                </table>
+                <div style="margin-top:12px;font-size:0.85rem;color:rgba(255,255,255,0.3);text-align:center;">
+                    所有皮肤均为独立角色，抽到后自动解锁。<br>
+                    重复皮肤将按上表补偿钻石。
+                </div>
+            `;
+            probContent.innerHTML = html;
+        }
+
+        // ---------- 抽卡历史展示 ----------
+        function renderHistory() {
+            const history = gameData.wishHistory || [];
+            if (history.length === 0) {
+                historyContent.innerHTML = `<div class="history-empty">📭 暂无抽卡记录</div>`;
+                return;
+            }
+
+            const items = history.slice(-100).reverse();
+            let html = `<div class="history-list">`;
+            for (const entry of items) {
+                const time = new Date(entry.time);
+                const timeStr = time.toLocaleString('zh-CN', {
+                    year: 'numeric', month: '2-digit', day: '2-digit',
+                    hour: '2-digit', minute: '2-digit', second: '2-digit'
+                });
+                const results = entry.results || [];
+                for (const r of results) {
+                    const color = TIER_COLORS[r.tierId] || '#ffffff';
+                    let rewardText = r.label || '';
+                    if (r.type === 'diamond') {
+                        rewardText = `钻石 x${r.diamondGain || 0}`;
+                    } else if (r.type === 'skin_pool') {
+                        const skinId = r.skinId;
+                        if (skinId && SKIN_DATA[skinId]) {
+                            rewardText = `${SKIN_DATA[skinId].name}${r.isNew ? ' ✨' : ''}`;
+                        } else {
+                            rewardText = '皮肤';
+                        }
+                    }
+                    html += `
+                        <div class="history-item">
+                            <span class="h-tier" style="color:${color};">${r.tierName || '未知'}</span>
+                            <span class="h-reward">${rewardText}</span>
+                            <span class="h-time">${timeStr}</span>
+                        </div>
+                    `;
+                }
+            }
+            html += `</div>`;
+            historyContent.innerHTML = html;
+        }
+
+        // ---------- 模态框控制 ----------
+        function openModal(modal) {
+            modal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal(modal) {
+            modal.classList.remove('show');
+            const anyOpen = document.querySelector('.modal-overlay.show');
+            if (!anyOpen) document.body.style.overflow = '';
+        }
+
         // ---------- 事件绑定 ----------
         singlePullBtn.addEventListener('click', () => performPull(1));
         tenPullBtn.addEventListener('click', () => performPull(10));
         closeResultBtn.addEventListener('click', closeResult);
         resultOverlay.addEventListener('click', (e) => { if (e.target === resultOverlay) closeResult(); });
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && resultOverlay.classList.contains('show')) closeResult();
+
+        probBtn.addEventListener('click', () => {
+            renderProbability();
+            openModal(probModal);
         });
+        probCloseBtn.addEventListener('click', () => closeModal(probModal));
+        probModal.addEventListener('click', (e) => { if (e.target === probModal) closeModal(probModal); });
+
+        historyBtn.addEventListener('click', () => {
+            renderHistory();
+            openModal(historyModal);
+        });
+        historyCloseBtn.addEventListener('click', () => closeModal(historyModal));
+        historyModal.addEventListener('click', (e) => { if (e.target === historyModal) closeModal(historyModal); });
 
         backBtn.addEventListener('click', () => {
             if (resultOverlay.classList.contains('show')) closeResult();
             window.location.href = 'index.html';
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                if (resultOverlay.classList.contains('show')) closeResult();
+                if (probModal.classList.contains('show')) closeModal(probModal);
+                if (historyModal.classList.contains('show')) closeModal(historyModal);
+            }
         });
 
         // ---------- 初始化枫叶 ----------
@@ -1403,7 +1757,7 @@
         function init() {
             updateDiamondDisplay();
             updateShowcase();
-            console.log('🎰 抽卡系统已加载（新奖池）');
+            console.log('🎰 抽卡系统已加载（最新概率）');
             console.log('📊 当前钻石:', gameData.diamond);
             console.log('🎨 已拥有皮肤:', gameData.ownedSkins);
             console.log('👤 已解锁角色:', gameData.unlockedChars);
@@ -1411,7 +1765,6 @@
         }
         init();
 
-        // 键盘快捷键
         document.addEventListener('keydown', (e) => {
             if (e.key === '1' && !e.ctrlKey && !e.metaKey) singlePullBtn.click();
             if (e.key === '2' && !e.ctrlKey && !e.metaKey) tenPullBtn.click();
